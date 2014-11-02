@@ -1,4 +1,4 @@
-//   sdmxmllib.js 0.1.0
+//   sdmxmllib.js 0.2.0
 //   http://github.com/airosa/sdmxmllib
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
@@ -12,7 +12,7 @@
         response: {}
     };
 
-    lib.version = '0.1.0';
+    lib.version = '0.2.0';
 
 //==============================================================================
 
@@ -22,14 +22,18 @@
         mapHeader(doc, result);
         mapErrors(doc, result);
 
-        mapItemSchemes(doc, result, 'Codelist', 'Code', 'codelists', 'codes');
-        mapItemSchemes(doc, result, 'ConceptScheme', 'Concept', 'conceptSchemes', 'concepts');
-        mapItemSchemes(doc, result, 'AgencyScheme', 'Agency', 'agencySchemes', 'agencies');
-        mapDataFlows(doc, result);
+        result.codelists = mapItemSchemes(doc, 'Codelist', 'Code', 'codes');
+        result.conceptSchemes = mapItemSchemes(doc, 'ConceptScheme', 'Concept', 'concepts');
+        result.agencySchemes = mapItemSchemes(doc, 'AgencyScheme', 'Agency', 'agencies');
+        result.categorySchemes = mapItemSchemes(doc, 'CategoryScheme', 'Category', 'categories');
+        result.dataflows = mapSimpleMaintainables(doc, 'Dataflow');
+        result.categorisations = mapSimpleMaintainables(doc, 'Categorisation');
+        result.dataStructures = mapDataStructures(doc);
 
         return result;
     };
 
+//------------------------------------------------------------------------------
 
     function getElementText (ancestor, tag) {
         var element = ancestor.querySelector(tag);
@@ -45,9 +49,10 @@
     }
 
 
-    function getAttributeValue (doc, name) {
-        if (doc.getAttribute(name) === null) return undefined;
-        return doc.getAttribute(name);
+    function getAttributeValue (node, name) {
+        if ((node === undefined) || (node === null)) return undefined;
+        if (node.getAttribute(name) === null) return undefined;
+        return node.getAttribute(name);
     }
 
 
@@ -67,6 +72,7 @@
         });
     }
 
+//------------------------------------------------------------------------------
 
     function mapHeader (doc, json) {
         var h = doc.querySelector('Header');
@@ -125,32 +131,38 @@
         });
     }
 
-    // TODO refactor maps to any artefact
-    function mapIdentifiableArtefact (doc, json) {
-        json.id = getAttributeValue(doc, 'id');
-        json.urn = getAttributeValue(doc, 'urn');
-        json.uri = getAttributeValue(doc, 'uri');
-        json.annotations = mapAnnotations(doc);
+//------------------------------------------------------------------------------
+
+    function mapIdentifiableArtefact (node) {
+        var result = {};
+        result.id = getAttributeValue(node, 'id');
+        result.urn = getAttributeValue(node, 'urn');
+        result.uri = getAttributeValue(node, 'uri');
+        result.annotations = mapAnnotations(node);
+        return result;
     }
 
 
-    function mapNameableArtefact (doc, json) {
-        mapIdentifiableArtefact(doc, json);
-        json.name = getElementText(doc, 'Name');
-        json.description = getElementText(doc, 'Description');
+    function mapNameableArtefact (node) {
+        var result = mapIdentifiableArtefact(node);
+        result.name = getElementText(node, 'Name');
+        result.description = getElementText(node, 'Description');
+        return result;
     }
 
 
-    function mapMaintainableArtefact (doc, json) {
-        mapNameableArtefact(doc, json);
-        json.validFrom = getAttributeValue(doc, 'validFrom');
-        json.validTo = getAttributeValue(doc, 'validTo');
-        json.isFinal = getBooleanAttributeValue(doc, 'isFinal');
-        json.isExternalReference = getBooleanAttributeValue(doc, 'isExternalReference');
-        json.structureURL = getAttributeValue(doc, 'structureURL');
-        json.serviceURL = getAttributeValue(doc, 'serviceURL');
+    function mapMaintainableArtefact (node) {
+        var result = mapNameableArtefact(node);
+        result.validFrom = getAttributeValue(node, 'validFrom');
+        result.validTo = getAttributeValue(node, 'validTo');
+        result.isFinal = getBooleanAttributeValue(node, 'isFinal');
+        result.isExternalReference = getBooleanAttributeValue(node, 'isExternalReference');
+        result.structureURL = getAttributeValue(node, 'structureURL');
+        result.serviceURL = getAttributeValue(node, 'serviceURL');
+        return result;
     }
 
+//------------------------------------------------------------------------------
 
     function mapAnnotations (doc) {
         var annotations = [].slice.call(doc.querySelectorAll('Annotation'));
@@ -167,82 +179,225 @@
         });
     }
 
+//------------------------------------------------------------------------------
 
-    function mapReference (doc) {
-        if ((doc === undefined) || (doc === null)) return undefined;
-        if (doc.querySelector('URN')) return doc.querySelector('URN').textContent;
+    function mapLocalReference (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+        return getAttributeValue(node.querySelector('Ref'), 'id');
+    }
 
-        var ref = doc.querySelector('Ref');
+
+    function mapBaseReference (node) {
+        return [
+            'urn:sdmx:org.sdmx.infomodel.',
+            getAttributeValue(node, 'package'),
+            '.',
+            getAttributeValue(node, 'class'),
+            '=',
+            getAttributeValue(node, 'agencyID'),
+            ':'
+        ].join('');
+    }
+
+
+    function mapItemReference (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+        if (node.querySelector('URN')) return node.querySelector('URN').textContent;
+
+        var ref = node.querySelector('Ref');
         if (ref) {
-            return [
-                'urn:sdmx:org.sdmx.infomodel.',
-                getAttributeValue(ref, 'package'),
-                '.',
-                getAttributeValue(ref, 'class'),
-                '=',
-                getAttributeValue(ref, 'agencyID'),
-                ':',
-                getAttributeValue(ref, 'id'),
-                '(',
-                getAttributeValue(ref, 'version'),
-                ')'
-            ].join('');
+            return mapBaseReference(ref) +
+                [
+                    getAttributeValue(ref, 'maintainableParentID'),
+                    '(',
+                    getAttributeValue(ref, 'maintainableParentVersion'),
+                    ').',
+                    getAttributeValue(ref, 'id'),
+                ].join('');
         }
 
         return undefined;
     }
 
 
-    function mapLocalReference (doc) {
-        if ((doc === undefined) || (doc === null)) return undefined;
-        var ref = doc.querySelector('Ref');
-        if (ref === undefined) return undefined;
-        return getAttributeValue(ref, 'id');
-    }
+    function mapReference (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+        if (node.querySelector('URN')) return node.querySelector('URN').textContent;
 
-
-    function mapItem (doc) {
-        var item = {};
-        mapNameableArtefact(doc, item);
-        item.parent = mapLocalReference(doc.querySelector('parent'));
-        // Concept
-        if (doc.querySelector('ISOConceptReference')) {
-            item.isoConceptReference = {
-                conceptAgency: getElementText(doc, 'ConceptAgency'),
-                conceptSchemeID: getElementText(doc, 'ConceptSchemeID'),
-                conceptID: getElementText(doc, 'ConceptID')
-            };
+        var ref = node.querySelector('Ref');
+        if (ref) {
+            return mapBaseReference(ref) +
+                [
+                    getAttributeValue(ref, 'id'),
+                    '(',
+                    getAttributeValue(ref, 'version'),
+                    ')'
+                ].join('');
         }
-        return item;
+
+        return undefined;
     }
 
+//------------------------------------------------------------------------------
 
-    function mapItemSchemes (doc, json, schemeNameXML, itemNameXML, schemeArrayName, itemArrayName) {
+    function mapItemSchemes (doc, schemeNameXML, itemNameXML, itemArrayName) {
+        function mapItems (node) {
+            var items = [].slice.call(node.querySelectorAll(itemNameXML));
+            if (items.length === 0) return undefined;
+            return items.map(mapItem);
+        }
+
+        function mapItem (itemnode) {
+            var item = mapNameableArtefact(itemnode);
+            item.parent = mapLocalReference(itemnode.querySelector('parent'));
+            item[itemArrayName] = mapItems(itemnode);
+
+            if (itemNameXML === 'Concept') {
+                if (itemnode.querySelector('ISOConceptReference')) {
+                    item.isoConceptReference = {
+                        conceptAgency: getElementText(doc, 'ConceptAgency'),
+                        conceptSchemeID: getElementText(doc, 'ConceptSchemeID'),
+                        conceptID: getElementText(doc, 'ConceptID')
+                    };
+                }
+            }
+
+            return item;
+        }
+
         var itemSchemes = [].slice.call(doc.querySelectorAll(schemeNameXML));
-        if (itemSchemes.length === 0) return;
+        if (itemSchemes.length === 0) return undefined;
 
-        json[schemeArrayName] = itemSchemes.map(function (itemdoc) {
-            var itemScheme = {};
-            mapMaintainableArtefact(itemdoc, itemScheme);
-            itemScheme.isPartial = getBooleanAttributeValue(itemdoc, 'isPartial');
-            var items = [].slice.call(itemdoc.querySelectorAll(itemNameXML));
-            itemScheme[itemArrayName] = items.map(mapItem);
+        return itemSchemes.map(function (schemenode) {
+            var itemScheme = mapMaintainableArtefact(schemenode);
+            itemScheme.isPartial = getBooleanAttributeValue(schemenode, 'isPartial');
+            itemScheme[itemArrayName] = mapItems(schemenode);
             return itemScheme;
         });
     }
 
 
-    function mapDataFlows (doc, json) {
-        var artefacts = [].slice.call(doc.querySelectorAll('Dataflow'));
-        if (artefacts.length === 0) return;
+    function mapSimpleMaintainables(doc, nameXML) {
+        var artefacts = [].slice.call(doc.querySelectorAll(nameXML));
+        if (artefacts.length === 0) return undefined;
 
-        json.dataFlows = artefacts.map(function (artefact) {
-            var dataFlow = {};
-            mapMaintainableArtefact(artefact, dataFlow);
-            dataFlow.structure = mapReference(artefact);
-            return dataFlow;
+        return artefacts.map(function (artefactnode) {
+            var artefact = mapMaintainableArtefact(artefactnode);
+
+            if (nameXML === 'Dataflow') {
+                artefact.structure = mapReference(artefactnode.querySelector('Structure'));
+            }
+
+            if (nameXML === 'Categorisation') {
+                artefact.source = mapReference(artefactnode.querySelector('Source'));
+                artefact.target = mapReference(artefactnode.querySelector('Target'));
+            }
+
+            return artefact;
         });
+    }
 
+//------------------------------------------------------------------------------
+
+    function mapTextFormat (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+
+        // TODO add all fields
+        return {
+            textType: getAttributeValue(node, 'textType'),
+            isSequence: getBooleanAttributeValue(node, 'isSequence'),
+            minLength: getAttributeValue(node, 'minLength'),
+            maxLength: getAttributeValue(node, 'maxLength')
+        };
+    }
+
+
+    function mapLocalRepresentation (node) {
+        var lr = node.querySelector('LocalRepresentation');
+        if ((lr === undefined) || (lr === null)) return undefined;
+
+        // TODO check that all fields are included
+        return {
+            enumeration: mapReference(lr.querySelector('Enumeration')),
+            textFormat: mapTextFormat(lr.querySelector('TextFormat')),
+            EnumerationFormat: mapTextFormat(lr.querySelector('EnumerationFormat'))
+        };
+    }
+
+
+    function mapComponent (node) {
+        var comp = mapIdentifiableArtefact(node);
+        comp.conceptIdentity = mapItemReference( node.querySelector('ConceptIdentity') );
+        comp.localRepresentation = mapLocalRepresentation(node);
+        return comp;
+    }
+
+
+    function mapAttributeRelationship (node) {
+        var ar = node.querySelector('AttributeRelationship');
+        if ((ar === undefined) || (ar === null)) return undefined;
+
+        result = {};
+
+        var dimensions = [].slice.call(ar.querySelectorAll('Dimension'));
+
+        if (0 < dimensions.length) {
+            result.dimensions = dimensions.map(function (node) { return mapLocalReference(node); } );
+            return result;
+        }
+
+        result.primaryMeasure = mapLocalReference(ar.querySelector('PrimaryMeasure'));
+        result.group = mapLocalReference(ar.querySelector('Group'));
+
+        return result;
+    }
+
+
+    function mapDataStructures (doc) {
+        var dsds = [].slice.call(doc.querySelectorAll('DataStructure'));
+        if (dsds.length === 0) return undefined;
+
+        return dsds.map(function (dsdnode)  {
+            var dsd = mapMaintainableArtefact(dsdnode);
+
+            var dims = [].slice.call(dsdnode.querySelectorAll(
+                'DimensionList > Dimension, DimensionList > TimeDimension, DimensionList > MeasureDimension'
+            ));
+
+            dsd.dimensions = dims.map(function (node) {
+                var dim = mapComponent(node);
+                dim.position = +getAttributeValue(node, 'position');
+                return dim;
+            });
+
+            var groups = [].slice.call(dsdnode.querySelectorAll('Group[id]'));
+            dsd.groups = groups.map(function (node) {
+                var grp = mapIdentifiableArtefact(node);
+                var dims = [].slice.call(node.querySelectorAll('GroupDimension > DimensionReference'));
+                grp.dimensions = dims.map(function (node) {
+                    return mapLocalReference(node);
+                });
+                grp.attachmentConstraint = mapReference(node.querySelector('AttachmentConstraint'));
+                return grp;
+            });
+
+            var attrs = [].slice.call(dsdnode.querySelectorAll('AttributeList > Attribute'));
+
+            dsd.attributes = attrs.map(function (node) {
+                var attr = mapComponent(node);
+                attr.assignmentStatus = getAttributeValue(node, 'assignmentStatus');
+                attr.attributeRelationship = mapAttributeRelationship(node);
+                return attr;
+            });
+
+            var measures = [].slice.call(dsdnode.querySelectorAll('MeasureList > PrimaryMeasure'));
+
+            dsd.measures = measures.map(function (node) {
+                return mapComponent(node);
+            });
+
+            return dsd;
+        });
     }
 
 //==============================================================================

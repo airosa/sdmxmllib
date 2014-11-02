@@ -11,6 +11,9 @@ message and supports a limited number of structures (with more to come):
 - Concept Scheme
 - Agency Scheme
 - Dataflow
+- Category Scheme
+- Categorisation
+- Data Structure
 
 See the [XML mapping sample](http://airosa.github.io/sdmxmllib/samples/sdmxmlmap/)
 for a live demo.
