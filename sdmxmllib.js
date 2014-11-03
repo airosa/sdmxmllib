@@ -26,10 +26,11 @@
         result.conceptSchemes = mapItemSchemes(doc, 'ConceptScheme', 'Concept', 'concepts');
         result.agencySchemes = mapItemSchemes(doc, 'AgencyScheme', 'Agency', 'agencies');
         result.categorySchemes = mapItemSchemes(doc, 'CategoryScheme', 'Category', 'categories');
-        result.dataflows = mapSimpleMaintainables(doc, 'Dataflow');
-        result.categorisations = mapSimpleMaintainables(doc, 'Categorisation');
+        result.dataflows = mapSimpleMaintainables(doc, 'Dataflows', 'Dataflow');
+        result.categorisations = mapSimpleMaintainables(doc, 'Categorisations', 'Categorisation');
         result.dataStructures = mapDataStructures(doc);
         result.hierarchicalCodelists = mapHierarchicalCodelists(doc);
+        result.contentConstraints = mapContentConstraints(doc);
 
         return result;
     };
@@ -96,30 +97,30 @@
     }
 
 
-    function mapParty (doc, name) {
-        var partydoc = doc.querySelector(name);
+    function mapParty (node, name) {
+        var partydoc = node.querySelector(name);
         if (partydoc === null) return undefined;
 
         var party = {};
 
         party.id = getAttributeValue(partydoc, 'id');
         party.name = getElementText(partydoc, 'Name');
-        party.contacts = [];
 
         var contacts = [].slice.call(partydoc.querySelectorAll('Contact'));
 
-        contacts.forEach(function (contactdoc) {
-            var contact = {};
-            contact.name = getElementText(contactdoc, 'Name');
-            contact.department = getElementText(contactdoc, 'Department');
-            contact.role = getElementText(contactdoc, 'Role');
-            contact.telephone = mapElementsTextToArray(contactdoc, 'Telephone');
-            contact.fax = mapElementsTextToArray(contactdoc, 'Fax');
-            contact.uri = mapElementsTextToArray(contactdoc, 'URI');
-            contact.email = mapElementsTextToArray(contactdoc, 'Emails');
-            party.contacts.push(contact);
-        });
-
+        if (0 < contacts.length) {
+            party.contacts = contacts.map(function (node) {
+                var contact = {};
+                contact.name = getElementText(node, 'Name');
+                contact.department = getElementText(node, 'Department');
+                contact.role = getElementText(node, 'Role');
+                contact.telephone = mapElementsTextToArray(node, 'Telephone');
+                contact.fax = mapElementsTextToArray(node, 'Fax');
+                contact.uri = mapElementsTextToArray(node, 'URI');
+                contact.email = mapElementsTextToArray(node, 'Emails');
+                return contact;
+            });
+        }
 
         return party;
     }
@@ -302,20 +303,23 @@
     }
 
 
-    function mapSimpleMaintainables(doc, nameXML) {
-        var artefacts = [].slice.call(doc.querySelectorAll(nameXML));
+    function mapSimpleMaintainables(doc, parentNameXML, nameXML) {
+        var node = doc.querySelector(parentNameXML);
+        if ((node === undefined) || (node === null)) return undefined;
+
+        var artefacts = [].slice.call(node.querySelectorAll(nameXML));
         if (artefacts.length === 0) return undefined;
 
-        return artefacts.map(function (artefactnode) {
-            var artefact = mapMaintainableArtefact(artefactnode);
+        return artefacts.map(function (node) {
+            var artefact = mapMaintainableArtefact(node);
 
             if (nameXML === 'Dataflow') {
-                artefact.structure = mapReference(artefactnode.querySelector('Structure'));
+                artefact.structure = mapReference(node.querySelector('Structure'));
             }
 
             if (nameXML === 'Categorisation') {
-                artefact.source = mapReference(artefactnode.querySelector('Source'));
-                artefact.target = mapReference(artefactnode.querySelector('Target'));
+                artefact.source = mapReference(node.querySelector('Source'));
+                artefact.target = mapReference(node.querySelector('Target'));
             }
 
             return artefact;
@@ -444,6 +448,80 @@
             var hcl = mapMaintainableArtefact(node);
             hcl.hierarchies = mapItemSchemes(node, 'Hierarchy', 'HierarchicalCode', 'hierarchicalCodes');
             return hcl;
+        });
+    }
+
+//------------------------------------------------------------------------------
+
+    function mapConstraintAttachment (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+
+        var result = {};
+        // TODO add other attachments
+        var dataflows = [].slice.call(node.querySelectorAll('Dataflow'));
+
+        if (0 < dataflows.length) {
+            result.dataflows = dataflows.map(function (node) {
+                return mapReference(node);
+            });
+        }
+
+        return result;
+    }
+
+
+    function mapCubeRegion (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+
+        var result = {};
+        result.include = getBooleanAttributeValue(node, 'include');
+        // TODO Add TimeRange and attributes
+
+        var keyValues = [].slice.call(node.querySelectorAll('KeyValue'));
+        if (0 < keyValues.length) {
+            result.keyValues = keyValues.map(function (node) {
+                var result = {};
+                result.id = getAttributeValue(node, 'id');
+                result.include = getBooleanAttributeValue(node, 'include');
+
+                var values = [].slice.call(node.querySelectorAll('Value'));
+                if (0 < values.length) {
+                    result.values = values.map(function (node) {
+                        return {
+                            value: node.textContent
+                        };
+                    });
+                }
+
+                return result;
+            });
+        }
+
+        return result;
+    }
+
+
+    function mapContentConstraints (doc) {
+        var node = doc.querySelector('Constraints');
+        if ((node === undefined) || (node === null)) return undefined;
+
+        var ccs = [].slice.call(node.querySelectorAll('ContentConstraint'));
+        if (ccs.length === 0) return undefined;
+
+        return ccs.map(function (node) {
+            var cc = mapMaintainableArtefact(node);
+            cc.type = getAttributeValue(node, 'type');
+            cc.constraintAttachment = mapConstraintAttachment(node.querySelector('ConstraintAttachment'));
+
+            // TODO: Add other region types
+
+            var cubeRegions = [].slice.call(node.querySelectorAll('CubeRegion'));
+
+            if (0 < cubeRegions.length) {
+                cc.cubeRegions = cubeRegions.map(mapCubeRegion);
+            }
+
+            return cc;
         });
     }
 

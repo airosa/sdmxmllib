@@ -15,6 +15,7 @@ message and supports a limited number of structures (with more to come):
 - Categorisation
 - Data Structure
 - Hierarchical Codelist
+- Content Constraint
 
 See the [XML mapping sample](http://airosa.github.io/sdmxmllib/samples/sdmxmlmap/)
 for a live demo.

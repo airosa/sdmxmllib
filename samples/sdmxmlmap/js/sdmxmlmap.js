@@ -13,9 +13,14 @@
     req.hostname = 'a-sdw-wsrest.ecb.europa.eu';
     req.path.pathname = 'service';
 
-    req.path.resource = 'hierarchicalcodelist';
-    req.path.agencyId = 'ECB.DISS';
-    req.path.resourceId = 'HCL_COUNTRY_GROUPINGS';
+    req.path.resource = 'contentconstraint';
+    req.path.agencyId = 'ECB';
+    req.path.resourceId = 'ICP_CONSTRAINTS';
+
+    //req.path.resource = 'hierarchicalcodelist';
+    //req.path.agencyId = 'ECB.DISS';
+    //req.path.resourceId = 'HCL_COUNTRY_GROUPINGS';
+
     //req.path.resource = 'datastructure';
     //req.path.agencyId = 'ECB';
     //req.path.resourceId = 'ECB_ICP1';
