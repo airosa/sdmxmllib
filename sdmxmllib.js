@@ -29,6 +29,7 @@
         result.dataflows = mapSimpleMaintainables(doc, 'Dataflow');
         result.categorisations = mapSimpleMaintainables(doc, 'Categorisation');
         result.dataStructures = mapDataStructures(doc);
+        result.hierarchicalCodelists = mapHierarchicalCodelists(doc);
 
         return result;
     };
@@ -53,6 +54,13 @@
         if ((node === undefined) || (node === null)) return undefined;
         if (node.getAttribute(name) === null) return undefined;
         return node.getAttribute(name);
+    }
+
+
+    function getNumericAttributeValue(node, name) {
+        var value = getAttributeValue(node, name);
+        if (value === undefined) return undefined;
+        return +value;
     }
 
 
@@ -125,7 +133,7 @@
 
         errors.forEach(function (error) {
             json.errors.push({
-                code: +getAttributeValue(error, 'code'),
+                code: getNumericAttributeValue(error, 'code'),
                 message: getElementText(error, 'Text')
             });
         });
@@ -151,10 +159,16 @@
     }
 
 
-    function mapMaintainableArtefact (node) {
+    function mapVersionableArtefact (node) {
         var result = mapNameableArtefact(node);
         result.validFrom = getAttributeValue(node, 'validFrom');
         result.validTo = getAttributeValue(node, 'validTo');
+        return result;
+    }
+
+
+    function mapMaintainableArtefact (node) {
+        var result = mapVersionableArtefact(node);
         result.isFinal = getBooleanAttributeValue(node, 'isFinal');
         result.isExternalReference = getBooleanAttributeValue(node, 'isExternalReference');
         result.structureURL = getAttributeValue(node, 'structureURL');
@@ -238,28 +252,38 @@
         return undefined;
     }
 
+
+    function mapISOConceptReference (node) {
+        if ((node === undefined) || (node === null)) return undefined;
+
+        return {
+            conceptAgency: getElementText(node, 'ConceptAgency'),
+            conceptSchemeID: getElementText(node, 'ConceptSchemeID'),
+            conceptID: getElementText(node, 'ConceptID')
+        };
+    }
+
 //------------------------------------------------------------------------------
 
     function mapItemSchemes (doc, schemeNameXML, itemNameXML, itemArrayName) {
         function mapItems (node) {
             var items = [].slice.call(node.querySelectorAll(itemNameXML));
             if (items.length === 0) return undefined;
-            return items.map(mapItem);
+            return items.filter(function (i) { return i.parentNode === node; } ).map(mapItem);
         }
 
-        function mapItem (itemnode) {
-            var item = mapNameableArtefact(itemnode);
-            item.parent = mapLocalReference(itemnode.querySelector('parent'));
-            item[itemArrayName] = mapItems(itemnode);
+        function mapItem (node) {
+            var item = mapVersionableArtefact(node); // HierarchicalCode = versionable
+            item.parent = mapLocalReference(node.querySelector('parent'));
+            item[itemArrayName] = mapItems(node);
 
             if (itemNameXML === 'Concept') {
-                if (itemnode.querySelector('ISOConceptReference')) {
-                    item.isoConceptReference = {
-                        conceptAgency: getElementText(doc, 'ConceptAgency'),
-                        conceptSchemeID: getElementText(doc, 'ConceptSchemeID'),
-                        conceptID: getElementText(doc, 'ConceptID')
-                    };
-                }
+                item.isoConceptReference = mapISOConceptReference(node.querySelector('ISOConceptReference'));
+                item.coreRepresentation = mapRepresentation(node.querySelector('CoreRepresentation'));
+            }
+
+            if (itemNameXML === 'HierarchicalCode') {
+                item.code = mapItemReference(node.querySelector('Code'));
             }
 
             return item;
@@ -271,6 +295,7 @@
         return itemSchemes.map(function (schemenode) {
             var itemScheme = mapMaintainableArtefact(schemenode);
             itemScheme.isPartial = getBooleanAttributeValue(schemenode, 'isPartial');
+            itemScheme.leveled = getBooleanAttributeValue(schemenode, 'leveled'); // Hierarchy
             itemScheme[itemArrayName] = mapItems(schemenode);
             return itemScheme;
         });
@@ -302,25 +327,33 @@
     function mapTextFormat (node) {
         if ((node === undefined) || (node === null)) return undefined;
 
-        // TODO add all fields
         return {
             textType: getAttributeValue(node, 'textType'),
             isSequence: getBooleanAttributeValue(node, 'isSequence'),
-            minLength: getAttributeValue(node, 'minLength'),
-            maxLength: getAttributeValue(node, 'maxLength')
+            interval: getNumericAttributeValue(node, 'interval'),
+            startValue: getNumericAttributeValue(node, 'startValue'),
+            endValue: getNumericAttributeValue(node, 'endValue'),
+            timeInterval: getAttributeValue(node, 'timeInterval'),
+            startTime: getNumericAttributeValue(node, 'startTime'),
+            endTime: getNumericAttributeValue(node, 'endTime'),
+            minLength: getNumericAttributeValue(node, 'minLength'),
+            maxLength: getNumericAttributeValue(node, 'maxLength'),
+            minValue: getNumericAttributeValue(node, 'minValue'),
+            maxValue: getNumericAttributeValue(node, 'maxValue'),
+            decimals: getNumericAttributeValue(node, 'decimals'),
+            pattern: getAttributeValue(node, 'pattern'),
+            isMultiLingual: getBooleanAttributeValue(node, 'isMultiLingual')
         };
     }
 
 
-    function mapLocalRepresentation (node) {
-        var lr = node.querySelector('LocalRepresentation');
-        if ((lr === undefined) || (lr === null)) return undefined;
+    function mapRepresentation (node) {
+        if ((node === undefined) || (node === null)) return undefined;
 
-        // TODO check that all fields are included
         return {
-            enumeration: mapReference(lr.querySelector('Enumeration')),
-            textFormat: mapTextFormat(lr.querySelector('TextFormat')),
-            EnumerationFormat: mapTextFormat(lr.querySelector('EnumerationFormat'))
+            textFormat: mapTextFormat(node.querySelector('TextFormat')),
+            enumeration: mapReference(node.querySelector('Enumeration')),
+            enumerationFormat: mapTextFormat(node.querySelector('EnumerationFormat'))
         };
     }
 
@@ -328,7 +361,7 @@
     function mapComponent (node) {
         var comp = mapIdentifiableArtefact(node);
         comp.conceptIdentity = mapItemReference( node.querySelector('ConceptIdentity') );
-        comp.localRepresentation = mapLocalRepresentation(node);
+        comp.localRepresentation = mapRepresentation(node.querySelector('LocalRepresentation'));
         return comp;
     }
 
@@ -366,7 +399,7 @@
 
             dsd.dimensions = dims.map(function (node) {
                 var dim = mapComponent(node);
-                dim.position = +getAttributeValue(node, 'position');
+                dim.position = getNumericAttributeValue(node, 'position');
                 return dim;
             });
 
@@ -397,6 +430,20 @@
             });
 
             return dsd;
+        });
+    }
+
+//------------------------------------------------------------------------------
+
+    function mapHierarchicalCodelists (doc) {
+        var hcls = [].slice.call(doc.querySelectorAll('HierarchicalCodelist'));
+        if (hcls.length === 0) return undefined;
+
+        // TODO add levels
+        return hcls.map(function (node)  {
+            var hcl = mapMaintainableArtefact(node);
+            hcl.hierarchies = mapItemSchemes(node, 'Hierarchy', 'HierarchicalCode', 'hierarchicalCodes');
+            return hcl;
         });
     }
 
