@@ -16,26 +16,30 @@
 
 //==============================================================================
 
+    // Main (only) interface method
     lib.mapSDMXMLResponse = function (doc) {
-        var result = {};
+        return {
+            header: mapHeader(doc),
 
-        mapHeader(doc, result);
-        mapErrors(doc, result);
+            codelists: mapItemSchemes(doc, 'Codelist', 'Code', 'codes'),
+            conceptSchemes: mapItemSchemes(doc, 'ConceptScheme', 'Concept', 'concepts'),
+            agencySchemes: mapItemSchemes(doc, 'AgencyScheme', 'Agency', 'agencies'),
+            categorySchemes: mapItemSchemes(doc, 'CategoryScheme', 'Category', 'categories'),
 
-        result.codelists = mapItemSchemes(doc, 'Codelist', 'Code', 'codes');
-        result.conceptSchemes = mapItemSchemes(doc, 'ConceptScheme', 'Concept', 'concepts');
-        result.agencySchemes = mapItemSchemes(doc, 'AgencyScheme', 'Agency', 'agencies');
-        result.categorySchemes = mapItemSchemes(doc, 'CategoryScheme', 'Category', 'categories');
-        result.dataflows = mapSimpleMaintainables(doc, 'Dataflows', 'Dataflow');
-        result.categorisations = mapSimpleMaintainables(doc, 'Categorisations', 'Categorisation');
-        result.dataStructures = mapDataStructures(doc);
-        result.hierarchicalCodelists = mapHierarchicalCodelists(doc);
-        result.contentConstraints = mapContentConstraints(doc);
+            dataflows: mapSimpleMaintainables(doc, 'Dataflows', 'Dataflow'),
+            categorisations: mapSimpleMaintainables(doc, 'Categorisations', 'Categorisation'),
 
-        return result;
+            dataStructures: mapDataStructures(doc),
+            hierarchicalCodelists: mapHierarchicalCodelists(doc),
+            contentConstraints: mapContentConstraints(doc),
+
+            errors: mapErrors(doc)
+        };
     };
 
 //------------------------------------------------------------------------------
+
+    // Set of low level functions for getting element text and attributes
 
     function getElementText (ancestor, tag) {
         var element = ancestor.querySelector(tag);
@@ -65,15 +69,15 @@
     }
 
 
-    function getBooleanAttributeValue (doc, name) {
-        var value = getAttributeValue(doc, name);
+    function getBooleanAttributeValue (node, name) {
+        var value = getAttributeValue(node, name);
         if (value) return value === 'true';
         return undefined;
     }
 
 
-    function mapElementsTextToArray (doc, name) {
-        var elements = [].slice.call(doc.querySelector(name));
+    function mapElementsTextToArray (node, name) {
+        var elements = [].slice.call(node.querySelector(name));
         if (elements.length === 0) return undefined;
 
         return elements.map(function (e) {
@@ -83,17 +87,19 @@
 
 //------------------------------------------------------------------------------
 
-    function mapHeader (doc, json) {
+    // Functions for mapping the header information (only for structure messages)
+
+    function mapHeader (doc) {
         var h = doc.querySelector('Header');
-        if (h === null) return;
+        if (h === null) return undefined;
 
-        json.header = {};
-        json.header.test = getElementText(h, 'Test') === 'true';
-        json.header.id = getElementText(h, 'ID');
-        json.header.prepared = getElementText(h, 'Prepared');
-
-        json.header.sender = mapParty(h, 'Sender');
-        json.header.receiver = mapParty(h, 'Receiver');
+        return {
+            test: getElementText(h, 'Test') === 'true',
+            id: getElementText(h, 'ID'),
+            prepared: getElementText(h, 'Prepared'),
+            sender: mapParty(h, 'Sender'),
+            receiver: mapParty(h, 'Receiver')
+        };
     }
 
 
@@ -126,29 +132,29 @@
     }
 
 
-    function mapErrors (doc, json) {
+    function mapErrors (doc) {
         var errors = [].slice.call(doc.querySelectorAll('ErrorMessage'));
-        if (errors.length === 0) return;
+        if (errors.length === 0) return undefined;
 
-        json.errors = [];
-
-        errors.forEach(function (error) {
-            json.errors.push({
-                code: getNumericAttributeValue(error, 'code'),
-                message: getElementText(error, 'Text')
-            });
+        return errors.map(function (node) {
+            return {
+                code: getNumericAttributeValue(node, 'code'),
+                message: getElementText(node, 'Text')
+            };
         });
     }
 
 //------------------------------------------------------------------------------
 
+    // Functions for mapping base artefact (identifiable etc.)
+
     function mapIdentifiableArtefact (node) {
-        var result = {};
-        result.id = getAttributeValue(node, 'id');
-        result.urn = getAttributeValue(node, 'urn');
-        result.uri = getAttributeValue(node, 'uri');
-        result.annotations = mapAnnotations(node);
-        return result;
+        return {
+            id: getAttributeValue(node, 'id'),
+            urn: getAttributeValue(node, 'urn'),
+            uri: getAttributeValue(node, 'uri'),
+            annotations: mapAnnotations(node)
+        };
     }
 
 
@@ -179,8 +185,8 @@
 
 //------------------------------------------------------------------------------
 
-    function mapAnnotations (doc) {
-        var annotations = [].slice.call(doc.querySelectorAll('Annotation'));
+    function mapAnnotations (node) {
+        var annotations = [].slice.call(node.querySelectorAll('Annotation'));
         if (annotations.length === 0) return undefined;
 
         return annotations.map(function (a) {
@@ -195,6 +201,8 @@
     }
 
 //------------------------------------------------------------------------------
+
+    // Set of functions for mapping references to artefacts (all map to urns)
 
     function mapLocalReference (node) {
         if ((node === undefined) || (node === null)) return undefined;
@@ -266,10 +274,13 @@
 
 //------------------------------------------------------------------------------
 
+    // Functions for mapping item scheme like artefacts
+
     function mapItemSchemes (doc, schemeNameXML, itemNameXML, itemArrayName) {
         function mapItems (node) {
             var items = [].slice.call(node.querySelectorAll(itemNameXML));
             if (items.length === 0) return undefined;
+            // Filter nodes that are belong directly to the parent
             return items.filter(function (i) { return i.parentNode === node; } ).map(mapItem);
         }
 
@@ -302,6 +313,7 @@
         });
     }
 
+//------------------------------------------------------------------------------
 
     function mapSimpleMaintainables(doc, parentNameXML, nameXML) {
         var node = doc.querySelector(parentNameXML);
@@ -327,6 +339,8 @@
     }
 
 //------------------------------------------------------------------------------
+
+    // Functions for mapping representations
 
     function mapTextFormat (node) {
         if ((node === undefined) || (node === null)) return undefined;
@@ -361,6 +375,9 @@
         };
     }
 
+//------------------------------------------------------------------------------
+
+    // Functions for mapping DSDs
 
     function mapComponent (node) {
         var comp = mapIdentifiableArtefact(node);
@@ -379,7 +396,9 @@
         var dimensions = [].slice.call(ar.querySelectorAll('Dimension'));
 
         if (0 < dimensions.length) {
-            result.dimensions = dimensions.map(function (node) { return mapLocalReference(node); } );
+            result.dimensions = dimensions.map(function (node) {
+                return mapLocalReference(node);
+            });
             return result;
         }
 
@@ -453,6 +472,8 @@
 
 //------------------------------------------------------------------------------
 
+    // Functions for mapping constraints
+
     function mapConstraintAttachment (node) {
         if ((node === undefined) || (node === null)) return undefined;
 
@@ -470,6 +491,29 @@
     }
 
 
+    function mapValue (node) {
+        return {
+            value: node.textContent,
+            cascadeValues: getBooleanAttributeValue(node, 'cascadeValues')
+        };
+    }
+
+
+    function mapKeyValue (node) {
+        var result = {};
+
+        result.id = getAttributeValue(node, 'id');
+        result.include = getBooleanAttributeValue(node, 'include');
+
+        var values = [].slice.call(node.querySelectorAll('Value'));
+        if (0 < values.length) {
+            result.values = values.map(mapValue);
+        }
+
+        return result;
+    }
+
+
     function mapCubeRegion (node) {
         if ((node === undefined) || (node === null)) return undefined;
 
@@ -479,22 +523,7 @@
 
         var keyValues = [].slice.call(node.querySelectorAll('KeyValue'));
         if (0 < keyValues.length) {
-            result.keyValues = keyValues.map(function (node) {
-                var result = {};
-                result.id = getAttributeValue(node, 'id');
-                result.include = getBooleanAttributeValue(node, 'include');
-
-                var values = [].slice.call(node.querySelectorAll('Value'));
-                if (0 < values.length) {
-                    result.values = values.map(function (node) {
-                        return {
-                            value: node.textContent
-                        };
-                    });
-                }
-
-                return result;
-            });
+            result.keyValues = keyValues.map(mapKeyValue);
         }
 
         return result;
