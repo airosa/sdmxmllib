@@ -20,6 +20,8 @@
     <![endif]-->
   </head>
   <body>
+
+    <!-- css styling is from Bootstrap -->
     <div class="container">
 
       <div class="row">
@@ -34,7 +36,7 @@
         <div class="col-md-12">
           <form role="form">
             <div class="form-group">
-              <label for="requestURL">Request URL</label>
+              <label for="requestURL">Request URL <mark> (Check the console for info, errors and warnings.) </mark></label>
               <input class="form-control" id="requestURL" placeholder="Enter URL">
             </div>
             <button id="request" type="button" class="btn btn-default">Request</button>
@@ -70,8 +72,9 @@
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <!-- sdmxjsonlib loads from Github -->
     <script src="//airosa.github.io/sdmxjsonlib/sdmxjsonlib.js"></script>
-    <!-- this library -->
+    <!-- sdmxxmllib library -->
     <script src="../../sdmxmllib.js"></script>
+    <!-- code for this sample application -->
     <script src="js/sdmxmlmap.js"></script>
   </body>
 </html>

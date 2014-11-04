@@ -1,4 +1,4 @@
-//   sdmxmllib.js 0.2.0
+//   sdmxmllib.js 0.3.0
 //   http://github.com/airosa/sdmxmllib
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
@@ -12,7 +12,7 @@
         response: {}
     };
 
-    lib.version = '0.2.0';
+    lib.version = '0.3.0';
 
 //==============================================================================
 
