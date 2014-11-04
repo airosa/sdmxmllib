@@ -3,32 +3,6 @@
   var input = document.getElementById('requestURL');
   var xmlOutput = document.getElementById('sdmx-ml');
   var jsonOutput = document.getElementById('sdmx-json');
-  var response;
-
-//------------------------------------------------------------------------------
-
-  // This code runs on page load and sets up the default request url
-  (function () {
-    var req = new sdmxjsonlib.request.URL();
-
-    req.hostname = 'a-sdw-wsrest.ecb.europa.eu';
-    req.path.pathname = 'service';
-
-    req.path.resource = 'contentconstraint';
-    req.path.agencyId = 'ECB';
-    req.path.resourceId = 'ICP_CONSTRAINTS';
-
-    //req.path.resource = 'hierarchicalcodelist';
-    //req.path.agencyId = 'ECB.DISS';
-    //req.path.resourceId = 'HCL_COUNTRY_GROUPINGS';
-
-    //req.path.resource = 'datastructure';
-    //req.path.agencyId = 'ECB';
-    //req.path.resourceId = 'ECB_ICP1';
-    //req.query.references = 'children';
-
-    input.value = req.href();
-  }).call(this);
 
 //------------------------------------------------------------------------------
 
@@ -66,6 +40,11 @@
   };
 
 //------------------------------------------------------------------------------
+
+  // set default url for the input
+  input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/contentconstraint/ECB/ICP_CONSTRAINTS';
+  //input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/hierarchicalcodelist/ECB.DISS/HCL_COUNTRY_GROUPINGS';
+  //input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/dataflow/ECB/ICP?references=children';
 
   // Handler for the request button
   document.getElementById('request').onclick = function () {
