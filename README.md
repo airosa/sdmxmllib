@@ -20,6 +20,18 @@ message and supports a limited number of structures (with more to come):
 See the [XML mapping sample](http://airosa.github.io/sdmxmllib/samples/sdmxmlmap/)
 for a live demo.
 
+## Main changes to SDMX-ML format ##
+
+The format follows the SDMX-ML format with similar structure and property names.
+Following are main changes:
+
+- Categories contain categorisations array with references to sources i.e. data
+flows.
+- Components in Data Structure Definitions contain representation attribute.
+Contents come from either from the localRepresentation or the concept (if .
+- All concepts contain explicit default representation.
+
+
 ## Usage ##
 
 You can use [require.js](http://requirejs.org):

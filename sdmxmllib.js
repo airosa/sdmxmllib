@@ -1,4 +1,4 @@
-//   sdmxmllib.js 0.3.0
+//   sdmxmllib.js 0.4.0
 //   http://github.com/airosa/sdmxmllib
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
@@ -17,24 +17,28 @@
 //==============================================================================
 
     // Main (only) interface method
-    lib.mapSDMXMLResponse = function (doc) {
-        return {
+    lib.mapSDMXMLResponse = function (doc, url) {
+        var identifiables = {};
+
+        var rawResponse = {
             header: mapHeader(doc),
 
-            codelists: mapItemSchemes(doc, 'Codelist', 'Code', 'codes'),
-            conceptSchemes: mapItemSchemes(doc, 'ConceptScheme', 'Concept', 'concepts'),
-            agencySchemes: mapItemSchemes(doc, 'AgencyScheme', 'Agency', 'agencies'),
-            categorySchemes: mapItemSchemes(doc, 'CategoryScheme', 'Category', 'categories'),
+            codelists: mapItemSchemes(doc, identifiables, 'Codelist', 'Code', 'codes'),
+            conceptSchemes: mapItemSchemes(doc, identifiables, 'ConceptScheme', 'Concept', 'concepts'),
+            agencySchemes: mapItemSchemes(doc, identifiables, 'AgencyScheme', 'Agency', 'agencies'),
+            categorySchemes: mapItemSchemes(doc, identifiables, 'CategoryScheme', 'Category', 'categories'),
 
-            dataflows: mapSimpleMaintainables(doc, 'Dataflows', 'Dataflow'),
-            categorisations: mapSimpleMaintainables(doc, 'Categorisations', 'Categorisation'),
+            dataflows: mapSimpleMaintainables(doc, identifiables, 'Dataflows', 'Dataflow'),
+            categorisations: mapSimpleMaintainables(doc, identifiables, 'Categorisations', 'Categorisation'),
 
-            dataStructures: mapDataStructures(doc),
-            hierarchicalCodelists: mapHierarchicalCodelists(doc),
-            contentConstraints: mapContentConstraints(doc),
+            dataStructures: mapDataStructures(doc, identifiables),
+            hierarchicalCodelists: mapHierarchicalCodelists(doc, identifiables),
+            contentConstraints: mapContentConstraints(doc, identifiables),
 
             errors: mapErrors(doc)
         };
+
+        return processResponse(rawResponse, identifiables, url);
     };
 
 //------------------------------------------------------------------------------
@@ -229,14 +233,16 @@
 
         var ref = node.querySelector('Ref');
         if (ref) {
-            return mapBaseReference(ref) +
-                [
-                    getAttributeValue(ref, 'maintainableParentID'),
-                    '(',
-                    getAttributeValue(ref, 'maintainableParentVersion'),
-                    ').',
-                    getAttributeValue(ref, 'id'),
-                ].join('');
+            return {
+                urn: mapBaseReference(ref) +
+                    [
+                        getAttributeValue(ref, 'maintainableParentID'),
+                        '(',
+                        getAttributeValue(ref, 'maintainableParentVersion'),
+                        ').',
+                        getAttributeValue(ref, 'id'),
+                    ].join('')
+            };
         }
 
         return undefined;
@@ -248,14 +254,19 @@
         if (node.querySelector('URN')) return node.querySelector('URN').textContent;
 
         var ref = node.querySelector('Ref');
+
+        if (ref.getAttribute('maintainableParentID')) return mapItemReference(node);
+
         if (ref) {
-            return mapBaseReference(ref) +
+            return {
+                urn: mapBaseReference(ref) +
                 [
                     getAttributeValue(ref, 'id'),
                     '(',
                     getAttributeValue(ref, 'version'),
                     ')'
-                ].join('');
+                ].join('')
+            };
         }
 
         return undefined;
@@ -276,7 +287,7 @@
 
     // Functions for mapping item scheme like artefacts
 
-    function mapItemSchemes (doc, schemeNameXML, itemNameXML, itemArrayName) {
+    function mapItemSchemes (doc, identifiables, schemeNameXML, itemNameXML, itemArrayName) {
         function mapItems (node) {
             var items = [].slice.call(node.querySelectorAll(itemNameXML));
             if (items.length === 0) return undefined;
@@ -298,7 +309,9 @@
                 item.code = mapItemReference(node.querySelector('Code'));
             }
 
-            return item;
+            identifiables[item.urn] = item;
+
+            return { urn: item.urn };
         }
 
         var itemSchemes = [].slice.call(doc.querySelectorAll(schemeNameXML));
@@ -306,16 +319,20 @@
 
         return itemSchemes.map(function (schemenode) {
             var itemScheme = mapMaintainableArtefact(schemenode);
+
             itemScheme.isPartial = getBooleanAttributeValue(schemenode, 'isPartial');
             itemScheme.leveled = getBooleanAttributeValue(schemenode, 'leveled'); // Hierarchy
             itemScheme[itemArrayName] = mapItems(schemenode);
+
+            identifiables[itemScheme.urn] = itemScheme;
+
             return itemScheme;
         });
     }
 
 //------------------------------------------------------------------------------
 
-    function mapSimpleMaintainables(doc, parentNameXML, nameXML) {
+    function mapSimpleMaintainables(doc, identifiables, parentNameXML, nameXML) {
         var node = doc.querySelector(parentNameXML);
         if ((node === undefined) || (node === null)) return undefined;
 
@@ -333,6 +350,8 @@
                 artefact.source = mapReference(node.querySelector('Source'));
                 artefact.target = mapReference(node.querySelector('Target'));
             }
+
+            identifiables[artefact.urn] = artefact;
 
             return artefact;
         });
@@ -382,7 +401,7 @@
     function mapComponent (node) {
         var comp = mapIdentifiableArtefact(node);
         comp.conceptIdentity = mapItemReference( node.querySelector('ConceptIdentity') );
-        comp.localRepresentation = mapRepresentation(node.querySelector('LocalRepresentation'));
+        comp.representation = mapRepresentation(node.querySelector('LocalRepresentation'));
         return comp;
     }
 
@@ -391,7 +410,7 @@
         var ar = node.querySelector('AttributeRelationship');
         if ((ar === undefined) || (ar === null)) return undefined;
 
-        result = {};
+        var result = {};
 
         var dimensions = [].slice.call(ar.querySelectorAll('Dimension'));
 
@@ -409,7 +428,7 @@
     }
 
 
-    function mapDataStructures (doc) {
+    function mapDataStructures (doc, identifiables) {
         var dsds = [].slice.call(doc.querySelectorAll('DataStructure'));
         if (dsds.length === 0) return undefined;
 
@@ -422,35 +441,50 @@
 
             dsd.dimensions = dims.map(function (node) {
                 var dim = mapComponent(node);
+
+                dim.type = node.localName;
                 dim.position = getNumericAttributeValue(node, 'position');
-                return dim;
+                identifiables[dim.urn] = dim;
+
+                return { urn: dim.urn };
             });
 
             var groups = [].slice.call(dsdnode.querySelectorAll('Group[id]'));
+
             dsd.groups = groups.map(function (node) {
                 var grp = mapIdentifiableArtefact(node);
                 var dims = [].slice.call(node.querySelectorAll('GroupDimension > DimensionReference'));
-                grp.dimensions = dims.map(function (node) {
+
+                grp.dimensionReferences = dims.map(function (node) {
                     return mapLocalReference(node);
                 });
                 grp.attachmentConstraint = mapReference(node.querySelector('AttachmentConstraint'));
-                return grp;
+                identifiables[grp.urn] = grp;
+
+                return { urn: grp.urn };
             });
 
             var attrs = [].slice.call(dsdnode.querySelectorAll('AttributeList > Attribute'));
 
             dsd.attributes = attrs.map(function (node) {
                 var attr = mapComponent(node);
+
                 attr.assignmentStatus = getAttributeValue(node, 'assignmentStatus');
                 attr.attributeRelationship = mapAttributeRelationship(node);
-                return attr;
+                identifiables[attr.urn] = attr;
+
+                return { urn: attr.urn };
             });
 
             var measures = [].slice.call(dsdnode.querySelectorAll('MeasureList > PrimaryMeasure'));
 
             dsd.measures = measures.map(function (node) {
-                return mapComponent(node);
+                var measure = mapComponent(node);
+                identifiables[measure.urn] = measure;
+                return { urn: measure.urn };
             });
+
+            identifiables[dsd.urn] = dsd;
 
             return dsd;
         });
@@ -458,14 +492,20 @@
 
 //------------------------------------------------------------------------------
 
-    function mapHierarchicalCodelists (doc) {
+    function mapHierarchicalCodelists (doc, identifiables) {
         var hcls = [].slice.call(doc.querySelectorAll('HierarchicalCodelist'));
         if (hcls.length === 0) return undefined;
 
         // TODO add levels
         return hcls.map(function (node)  {
             var hcl = mapMaintainableArtefact(node);
-            hcl.hierarchies = mapItemSchemes(node, 'Hierarchy', 'HierarchicalCode', 'hierarchicalCodes');
+            var hierarchies = mapItemSchemes(node, identifiables, 'Hierarchy', 'HierarchicalCode', 'hierarchicalCodes');
+
+            hcl.hierarchies = hierarchies.map(function (h) { return { urn: h.urn}; });
+            hierarchies.forEach(function (h) { identifiables[h.urn] = h; });
+
+            identifiables[hcl.urn] = hcl;
+
             return hcl;
         });
     }
@@ -530,7 +570,7 @@
     }
 
 
-    function mapContentConstraints (doc) {
+    function mapContentConstraints (doc, identifiables) {
         var node = doc.querySelector('Constraints');
         if ((node === undefined) || (node === null)) return undefined;
 
@@ -550,7 +590,99 @@
                 cc.cubeRegions = cubeRegions.map(mapCubeRegion);
             }
 
-            return cc;
+            identifiables[cc.urn] = cc;
+
+            return { urn: cc.urn };
+        });
+    }
+
+//------------------------------------------------------------------------------
+
+    // Functions for pre-processing responses
+
+    function processResponse (resp, identifiables, url) {
+        var resources = {};
+        var filteredIdentifiables = {};
+        var resourceClasses = getResourceClasses(url);
+        var resourceClassCount = resourceClasses.length;
+
+        processCategorisations(resp.categorisations, identifiables);
+
+        resourceClasses.forEach(function (c) {
+            filterObjectProperties(identifiables, resources, function (k) { return 0 < k.indexOf(c); });
+        });
+
+        filterObjectProperties(identifiables, filteredIdentifiables, function (k) {
+            for (var i = 0; i < resourceClassCount; i++) {
+                if (0 < k.indexOf(resourceClasses[i])) return false;
+            }
+            return true;
+        });
+
+        return {
+            resources: resources,
+            references: filteredIdentifiables
+        };
+    }
+
+
+    function getResourceClasses (url) {
+        var keys = [];
+
+        var resourceMap  = {
+            'datastructure': 'DataStructure',
+            'metadatastructure': 'MetadataStructure',
+            'categoryscheme': 'CategoryScheme',
+            'conceptscheme': 'ConceptScheme',
+            'codelist': 'Codelist',
+            'hierarchicalcodelist': 'HierarchicalCodelist',
+            'agencyscheme': 'AgencyScheme',
+            'dataproviderscheme': 'DataProviderScheme',
+            'dataconsumerscheme': 'DataConsumerScheme',
+            'organisationunitscheme': 'OrganisationUnitScheme',
+            'dataflow': 'Dataflow',
+            'metadataflow': 'Metadataflow',
+            'reportingtaxonomy': 'ReportingTaxonomy',
+            'provisionagreement': 'ProvisionAgreement',
+            'structureset': 'StructureSet',
+            'process': 'Process',
+            'categorisation': 'Categorisation',
+            'contentconstraint': 'ContentConstraint',
+            'attachmentconstraint': 'AttachmentConstraint'
+        };
+
+        if (0 < url.indexOf('/structure')) {
+            keys = Object.keys(resourceMap);
+        } else if (0 < url.indexOf('/organisationscheme')) {
+            keys = [
+                'agencyscheme',
+                'dataproviderscheme',
+                'dataconsumerscheme',
+                'organisationunitscheme'
+            ];
+        } else {
+            keys = Object.keys(resourceMap).filter(function (k) { return 0 < url.indexOf('/' + k); });
+        }
+
+        return keys.map(function (k) { return resourceMap[k]; });
+    }
+
+
+    function filterObjectProperties (source, target, f) {
+        Object.keys(source).filter(f).forEach(function (k) { target[k] = source[k]; });
+    }
+
+
+    function processCategorisations (categorisations, identifiables) {
+        if ((categorisations === undefined) || (categorisations === null)) return;
+
+        categorisations.forEach(function (c) {
+            var category = identifiables[c.target.urn];
+
+            if ((category === undefined) || (category === null)) return;
+            if (category.categorisations === undefined) category.categorisations = [];
+
+            category.categorisations.push({ urn: c.source.urn });
         });
     }
 

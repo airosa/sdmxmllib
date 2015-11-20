@@ -19,7 +19,7 @@
         // Show the raw response text on page
         xmlOutput.textContent = req.responseText;
         // convert XML to javascript objects
-        var json = sdmxmllib.mapSDMXMLResponse(req.responseXML);
+        var json = sdmxmllib.mapSDMXMLResponse(req.responseXML, url);
         // Convert to json and show on page
         jsonOutput.textContent = JSON.stringify(json, null, 2);
     };
@@ -42,7 +42,8 @@
 //------------------------------------------------------------------------------
 
   // set default url for the input
-  input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/contentconstraint/ECB/ICP_CONSTRAINTS';
+  input.value = 'http://sdw-wsrest.ecb.europa.eu/service/categoryscheme/ECB/MOBILE_NAVI?references=parentsandsiblings';
+  //input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/contentconstraint/ECB/ICP_CONSTRAINTS';
   //input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/hierarchicalcodelist/ECB.DISS/HCL_COUNTRY_GROUPINGS';
   //input.value = 'https://a-sdw-wsrest.ecb.europa.eu/service/dataflow/ECB/ICP?references=children';
 
