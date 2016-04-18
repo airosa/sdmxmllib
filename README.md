@@ -1,4 +1,4 @@
-# sdmxmllib [![Build Status](https://travis-ci.org/airosa/sdmxmllib.svg?branch=master)](https://travis-ci.org/airosa/sdmxmllib)
+# sdmxmllib [![Build Status](https://travis-ci.org/airosa/sdmxmllib.svg?branch=master)](https://travis-ci.org/airosa/sdmxmllib) [![current version](https://img.shields.io/npm/v/sdmxmllib.svg)](https://www.npmjs.com/package/sdmxmllib)
 
 Experimental Javascript client library for mapping SDMX-ML 2.1 structure messages.
 
