@@ -1,0 +1,51 @@
+{
+  "name": "sdmxmllib",
+  "description": "Javascript library for converting SDMX-ML structure messages",
+  "version": "0.5.0",
+  "main": "src/sdmxmllib.js",
+  "scripts": {
+    "commit": "git-cz",
+    "check-coverage": "istanbul check-coverage --statements 80 --branches 60 --functions 80 --lines 80",
+    "report-coverage": "cat ./coverage/lcov.info | codecov",
+    "test": "mocha --require ./src/util/node-helper.js --recursive",
+    "test:single": "istanbul cover _mocha -- --require ./src/util/node-helper.js --recursive",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "lint": "jshint src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/airosa/sdmxmllib.git"
+  },
+  "keywords": [
+    "sdmx",
+    "sdmx-ml"
+  ],
+  "author": "Sami Airo <sami.airo@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/airosa/sdmxmllib/issues"
+  },
+  "homepage": "https://github.com/airosa/sdmxmllib#readme",
+  "devDependencies": {
+    "commitizen": "2.5.0",
+    "cz-conventional-changelog": "1.1.5",
+    "istanbul": "0.4.2",
+    "codecov.io": "0.1.6",
+    "mocha": "2.4.5",
+    "chai": "3.5.0",
+    "ghooks": "1.0.3",
+    "semantic-release": "4.3.5",
+    "jsdom": "8.4.0",
+    "jshint": "2.9.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run test:single && npm run check-coverage && npm run lint"
+    }
+  },
+  "dependencies": {
+  }
+}

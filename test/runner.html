@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>SDMXMLLIB Tests</title>
+
+        <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    </head>
+    <body>
+        <div id="mocha"></div>
+
+        <script src="../node_modules/mocha/mocha.js"></script>
+        <script type="text/javascript">
+            mocha.setup({ui:'bdd'});
+        </script>
+
+        <script src="../node_modules/chai/chai.js"></script>
+        <script type="text/javascript">
+            should = chai.Should();
+        </script>
+
+        <script src="../src/sdmxmllib.js"></script>
+        <script src="../src/util/browser-helper.js"></script>
+        <script src="test-message.js"></script>
+
+        <script type="text/javascript">
+            window.onload = function() {
+                mocha.checkLeaks();
+                mocha.run();
+            };
+        </script>
+    </body>
+</html>

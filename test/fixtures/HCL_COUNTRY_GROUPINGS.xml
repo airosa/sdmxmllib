@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mes:Structure xsi:schemaLocation="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message http://www.metadatatechnology.com/beta/SDMX2.1/SDMXMessage.xsd" xmlns:mes="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:str="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:com="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common">
+  <mes:Header>
+    <mes:ID>IDREF398958</mes:ID>
+    <mes:Test>false</mes:Test>
+    <mes:Prepared>2016-04-13T05:36:30.917Z</mes:Prepared>
+    <mes:Sender id="ECB"/>
+    <mes:Receiver id="unknown"/>
+  </mes:Header>
+  <mes:Structures>
+    <str:HierarchicalCodelists>
+      <str:HierarchicalCodelist id="HCL_COUNTRY_GROUPINGS" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCodelist=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0)" agencyID="ECB.DISS" version="1.0">
+        <com:Name xml:lang="en">List of country groupings</com:Name>
+        <str:Hierarchy id="EU_GROUPINGS_PROTOCOL" urn="urn:sdmx:org.sdmx.infomodel.codelist.Hierarchy=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL" leveled="false">
+          <com:Name xml:lang="en">EU countries sorted by protocol order</com:Name>
+          <str:HierarchicalCode id="1" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1">
+            <str:Code>
+              <Ref id="EU" maintainableParentID="CL_COUNTRY_GROUPINGS" maintainableParentVersion="1.0" agencyID="ECB.DISS" package="codelist" class="Code"/>
+            </str:Code>
+            <str:HierarchicalCode id="1" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.1">
+              <str:Code>
+                <Ref id="BE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="2" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.2">
+              <str:Code>
+                <Ref id="BG" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="3" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.3">
+              <str:Code>
+                <Ref id="CZ" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="4" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.4">
+              <str:Code>
+                <Ref id="DK" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="5" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.5">
+              <str:Code>
+                <Ref id="DE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="6" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.6">
+              <str:Code>
+                <Ref id="EE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="7" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.7">
+              <str:Code>
+                <Ref id="IE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="8" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.8">
+              <str:Code>
+                <Ref id="GR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="9" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.9">
+              <str:Code>
+                <Ref id="ES" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="10" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.10">
+              <str:Code>
+                <Ref id="FR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="11" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.11">
+              <str:Code>
+                <Ref id="HR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="12" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.12">
+              <str:Code>
+                <Ref id="IT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="13" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.13">
+              <str:Code>
+                <Ref id="CY" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="14" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.14">
+              <str:Code>
+                <Ref id="LV" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="15" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.15">
+              <str:Code>
+                <Ref id="LT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="16" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.16">
+              <str:Code>
+                <Ref id="LU" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="17" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.17">
+              <str:Code>
+                <Ref id="HU" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="18" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.18">
+              <str:Code>
+                <Ref id="MT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="19" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.19">
+              <str:Code>
+                <Ref id="NL" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="20" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.20">
+              <str:Code>
+                <Ref id="AT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="21" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.21">
+              <str:Code>
+                <Ref id="PL" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="22" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.22">
+              <str:Code>
+                <Ref id="PT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="23" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.23">
+              <str:Code>
+                <Ref id="RO" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="24" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.24">
+              <str:Code>
+                <Ref id="SI" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="25" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.25">
+              <str:Code>
+                <Ref id="SK" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="26" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.26">
+              <str:Code>
+                <Ref id="FI" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="27" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.27">
+              <str:Code>
+                <Ref id="SE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="28" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.28">
+              <str:Code>
+                <Ref id="GB" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+          </str:HierarchicalCode>
+          <str:HierarchicalCode id="2" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2">
+            <str:Code>
+              <Ref id="EA" maintainableParentID="CL_COUNTRY_GROUPINGS" maintainableParentVersion="1.0" agencyID="ECB.DISS" package="codelist" class="Code"/>
+            </str:Code>
+            <str:HierarchicalCode id="1" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.1">
+              <str:Code>
+                <Ref id="BE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="2" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.2">
+              <str:Code>
+                <Ref id="DE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="3" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.3">
+              <str:Code>
+                <Ref id="EE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="4" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.4">
+              <str:Code>
+                <Ref id="LT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="5" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.5">
+              <str:Code>
+                <Ref id="IE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="6" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.6">
+              <str:Code>
+                <Ref id="GR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="7" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.7">
+              <str:Code>
+                <Ref id="ES" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="8" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.8">
+              <str:Code>
+                <Ref id="FR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="9" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.9">
+              <str:Code>
+                <Ref id="IT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="10" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.10">
+              <str:Code>
+                <Ref id="CY" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="11" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.11">
+              <str:Code>
+                <Ref id="LV" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="12" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.12">
+              <str:Code>
+                <Ref id="LU" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="13" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.13">
+              <str:Code>
+                <Ref id="MT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="14" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.14">
+              <str:Code>
+                <Ref id="NL" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="15" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.15">
+              <str:Code>
+                <Ref id="AT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="16" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.16">
+              <str:Code>
+                <Ref id="PT" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="17" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.17">
+              <str:Code>
+                <Ref id="SI" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="18" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.18">
+              <str:Code>
+                <Ref id="SK" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="19" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.2.19">
+              <str:Code>
+                <Ref id="FI" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+          </str:HierarchicalCode>
+          <str:HierarchicalCode id="3" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3">
+            <str:Code>
+              <Ref id="NEA" maintainableParentID="CL_COUNTRY_GROUPINGS" maintainableParentVersion="1.0" agencyID="ECB.DISS" package="codelist" class="Code"/>
+            </str:Code>
+            <str:HierarchicalCode id="1" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.1">
+              <str:Code>
+                <Ref id="BG" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="2" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.2">
+              <str:Code>
+                <Ref id="CZ" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="3" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.3">
+              <str:Code>
+                <Ref id="DK" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="4" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.4">
+              <str:Code>
+                <Ref id="HR" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="5" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.5">
+              <str:Code>
+                <Ref id="HU" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="6" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.6">
+              <str:Code>
+                <Ref id="PL" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="7" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.7">
+              <str:Code>
+                <Ref id="RO" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="8" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.8">
+              <str:Code>
+                <Ref id="SE" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+            <str:HierarchicalCode id="9" urn="urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.3.9">
+              <str:Code>
+                <Ref id="GB" maintainableParentID="CL_AREA_EE" maintainableParentVersion="1.0" agencyID="ECB" package="codelist" class="Code"/>
+              </str:Code>
+            </str:HierarchicalCode>
+          </str:HierarchicalCode>
+        </str:Hierarchy>
+      </str:HierarchicalCodelist>
+    </str:HierarchicalCodelists>
+  </mes:Structures>
+</mes:Structure>
