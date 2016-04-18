@@ -1,5 +1,4 @@
-sdmxmllib
-===========
+# sdmxmllib [![Build Status](https://travis-ci.org/airosa/sdmxmllib.svg?branch=master)](https://travis-ci.org/airosa/sdmxmllib)
 
 Experimental Javascript client library for mapping SDMX-ML 2.1 structure messages.
 
