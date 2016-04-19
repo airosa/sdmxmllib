@@ -15,6 +15,22 @@
     readXMLFixture(fixture, callback);
   };
 
+  var testProps = function (obj, props) {
+    Object.keys(props).forEach( function (k) {
+      if (typeof props[k] === 'object') {
+        testProps(obj[k], props[k]);
+      } else {
+        obj.should.have.property(k, props[k]);
+      }
+    });
+  };
+
+  var findResource = function (c, id) {
+    return msg.resources.filter(function (r) {
+      return (r.class === c) && (r.id === id);
+    })[0];
+  };
+
 
   describe('Internal API for document object', function() {
     before(function (done) { getFixture('fixtures/CL_FREQ.xml', done); });
@@ -44,24 +60,24 @@
 
 
   describe('Message', function () {
-    //before(function (done) { getFixture('fixtures/CL_FREQ.xml', done); });
+    before(function (done) { getFixture('fixtures/CL_FREQ.xml', done); });
 
     it('contains header', function () {
-      msg.should.have.property('header');
-      var header = msg.header;
-      header.should.have.property('id', 'IDREF340582');
-      header.should.have.property('test', false);
-      header.should.have.property('prepared');
-      header.should.have.property('sender').with.property('id', 'ECB');
-      header.should.have.property('receiver').with.property('id', 'unknown');
+      msg.should.have.property('header').that.is.an('object');
+      testProps(msg.header, {
+        id: 'IDREF340582',
+        test: false,
+        prepared: '2016-03-28T20:59:24.075Z',
+        sender: { id: 'ECB' },
+        receiver: { id: 'unknown' }
+      });
     });
 
     it('contains resources', function () {
-      msg.should.have.property('resources').that.is.an('array');
-      msg.resources.length.should.equal(1);
+      msg.should.have.property('resources').that.is.an('array').with.lengthOf(1);
       msg.should.have.property('references').that.is.an('object');
-      Object.keys(msg.references).length.should.equal(1);
-      Object.keys(msg.references)[0].should.equal('urn:sdmx:org.sdmx.infomodel.codelist.Codelist=ECB:CL_FREQ(1.0)');
+      Object.keys(msg.references).should.have.lengthOf(1);
+      msg.references.should.contain.all.keys('urn:sdmx:org.sdmx.infomodel.codelist.Codelist=ECB:CL_FREQ(1.0)');
     });
   });
 
@@ -70,82 +86,135 @@
     before(function (done) { getFixture('fixtures/CL_FREQ.xml', done); });
 
     it('contains attributes', function () {
-      firstResource.should.have.property('id', 'CL_FREQ');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.Codelist=ECB:CL_FREQ(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'Frequency code list');
-      firstResource.should.have.property('package', 'codelist');
-      firstResource.should.have.property('class', 'Codelist');
+      testProps(msg.resources[0], {
+        id: 'CL_FREQ',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.Codelist=ECB:CL_FREQ(1.0)',
+        agencyID: 'ECB',
+        version: '1.0',
+        name: 'Frequency code list',
+        package: 'codelist',
+        class: 'Codelist'
+      });
     });
 
     it('contains codes', function () {
-      firstResource.should.have.property('items').that.is.an('array');
-      var items = firstResource.items;
-      items.length.should.eql(10);
-      items[0].should.have.property('id', 'A');
-      items[0].should.have.property('name', 'Annual');
-      items[0].should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.Code=ECB:CL_FREQ(1.0).A');
-      items[0].should.have.property('package', 'codelist');
-      items[0].should.have.property('class', 'Code');
+      msg.resources[0].should.have.property('items').that.is.an('array').with.lengthOf(10);
+      testProps(msg.resources[0].items[0], {
+        id: 'A',
+        name: 'Annual',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.Code=ECB:CL_FREQ(1.0).A',
+        package: 'codelist',
+        class: 'Code',
+        agencyID: 'ECB',
+        maintainableParentID: 'CL_FREQ',
+        maintainableParentVersion: '1.0'
+      });
     });
 
   });
 
 
-
   describe('ConceptScheme', function () {
-    before(function (done) { getFixture('fixtures/ECB_CONCEPTS.xml', done); });
+    describe('SDW ConceptScheme', function () {
+      before(function (done) { getFixture('fixtures/ECB_CONCEPTS.xml', done); });
 
-    it('contains attributes', function () {
-      firstResource.should.have.property('id', 'ECB_CONCEPTS');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.conceptscheme.ConceptScheme=ECB:ECB_CONCEPTS(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'ECB concepts');
-      firstResource.should.have.property('package', 'conceptscheme');
-      firstResource.should.have.property('class', 'ConceptScheme');
+      it('contains attributes', function () {
+        testProps(msg.resources[0], {
+          id: 'ECB_CONCEPTS',
+          urn: 'urn:sdmx:org.sdmx.infomodel.conceptscheme.ConceptScheme=ECB:ECB_CONCEPTS(1.0)',
+          agencyID: 'ECB',
+          version: '1.0',
+          name: 'ECB concepts',
+          package: 'conceptscheme',
+          class: 'ConceptScheme'
+        });
+      });
+
+      it('contains concepts', function () {
+        msg.resources[0].should.have.property('items').that.is.an('array').with.lengthOf(335);
+        testProps(msg.resources[0].items[0], {
+          id: 'COUNT_AREA',
+          name: 'Counterpart area',
+          urn: 'urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=ECB:ECB_CONCEPTS(1.0).COUNT_AREA',
+          package: 'conceptscheme',
+          class: 'Concept',
+          agencyID: 'ECB',
+          maintainableParentID: 'ECB_CONCEPTS',
+          maintainableParentVersion: '1.0'
+        });
+      });
     });
 
-    it('contains concepts', function () {
-      firstResource.should.have.property('items').that.is.an('array');
-      var items = firstResource.items;
-      items.length.should.equal(335);
-      items[0].should.have.property('id', 'COUNT_AREA');
-      items[0].should.have.property('name', 'Counterpart area');
-      items[0].should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=ECB:ECB_CONCEPTS(1.0).COUNT_AREA');
-      items[0].should.have.property('package', 'conceptscheme');
-      items[0].should.have.property('class', 'Concept');
-    });
+    describe('Global Registry ConceptScheme', function () {
+      before(function (done) { getFixture('fixtures/CS_BOP.xml', done); });
 
+      it('contains attributes', function () {
+        testProps(msg.resources[0], {
+          id: 'CS_BOP',
+          urn: 'urn:sdmx:org.sdmx.infomodel.conceptscheme.ConceptScheme=IMF:CS_BOP(1.6)',
+          agencyID: 'IMF',
+          version: '1.6',
+          name: 'Balance of Payments Concept Scheme',
+          package: 'conceptscheme',
+          class: 'ConceptScheme',
+          isExternalReference: false,
+          isFinal: true
+        });
+      });
+
+      it('contains concepts', function () {
+        firstResource.should.have.property('items').that.is.an('array').with.lengthOf(32);
+        testProps(msg.resources[0].items[0], {
+          id: 'FREQ',
+          name: 'Frequency',
+          description: 'Frequency',
+          urn: 'urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=IMF:CS_BOP(1.6).FREQ',
+          package: 'conceptscheme',
+          class: 'Concept',
+          coreRepresentation: {
+            enumeration: {
+              href: 'urn:sdmx:org.sdmx.infomodel.codelist.Codelist=SDMX:CL_FREQ(2.0)',
+              rel: 'representation',
+              type: 'codelist'
+            }
+          },
+          agencyID: 'IMF',
+          maintainableParentID: 'CS_BOP',
+          maintainableParentVersion: '1.6'
+        });
+      });
+    });
   });
 
 
   describe('CategoryScheme', function () {
-    before(function (done) { getFixture('fixtures/MOBILE_NAVI.xml', done); });
+    describe('SDW CategoryScheme', function () {
+      before(function (done) { getFixture('fixtures/MOBILE_NAVI.xml', done); });
 
-    it('contains attributes', function () {
-      firstResource.should.have.property('id', 'MOBILE_NAVI');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.categoryscheme.CategoryScheme=ECB:MOBILE_NAVI(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'Economic concepts');
-      firstResource.should.have.property('package', 'categoryscheme');
-      firstResource.should.have.property('class', 'CategoryScheme');
+      it('contains attributes', function () {
+        testProps(msg.resources[0], {
+          id: 'MOBILE_NAVI',
+          urn: 'urn:sdmx:org.sdmx.infomodel.categoryscheme.CategoryScheme=ECB:MOBILE_NAVI(1.0)',
+          agencyID: 'ECB',
+          version: '1.0',
+          name: 'Economic concepts',
+          package: 'categoryscheme',
+          class: 'CategoryScheme'
+        });
+      });
+
+      it('contains categories', function () {
+        firstResource.should.have.property('items').that.is.an('array').with.lengthOf(11);
+        testProps(msg.resources[0].items[0], {
+          id: '01',
+          name: 'Monetary operations',
+          urn: 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Category=ECB:MOBILE_NAVI(1.0).01',
+          package: 'categoryscheme',
+          class: 'Category',
+        });
+        msg.resources[0].items[0].should.have.property('description').with.lengthOf(143);
+      });
     });
-
-    it('contains categories', function () {
-      firstResource.should.have.property('items').that.is.an('array');
-      var items = firstResource.items;
-      items.length.should.equal(11);
-      items[0].should.have.property('id', '01');
-      items[0].should.have.property('name', 'Monetary operations');
-      items[0].should.have.property('description').that.has.length(143);
-      items[0].should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Category=ECB:MOBILE_NAVI(1.0).01');
-      items[0].should.have.property('package', 'categoryscheme');
-      items[0].should.have.property('class', 'Category');
-    });
-
   });
 
 
@@ -153,25 +222,26 @@
     before(function (done) { getFixture('fixtures/MOBILE_NAVI-categorisations.xml', done); });
 
     it('contains attributes', function () {
-      firstResource = msg.resources.filter(function (r) { return r.class === 'AgencyScheme'; })[0];
-      firstResource.should.have.property('id', 'AGENCIES');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.base.AgencyScheme=SDMX:AGENCIES(1.0)');
-      firstResource.should.have.property('agencyID', 'SDMX');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'SDMX Agency Scheme');
-      firstResource.should.have.property('package', 'base');
-      firstResource.should.have.property('class', 'AgencyScheme');
+      testProps(findResource('AgencyScheme', 'AGENCIES'), {
+        id: 'AGENCIES',
+        urn: 'urn:sdmx:org.sdmx.infomodel.base.AgencyScheme=SDMX:AGENCIES(1.0)',
+        agencyID: 'SDMX',
+        version: '1.0',
+        name: 'SDMX Agency Scheme',
+        package: 'base',
+        class: 'AgencyScheme'
+      });
     });
 
     it('contains agencies', function () {
-      firstResource.should.have.property('items').that.is.an('array');
-      var items = firstResource.items;
-      items.length.should.equal(5);
-      items[0].should.have.property('id', 'SDMX');
-      items[0].should.have.property('name', 'SDMX');
-      items[0].should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.base.Agency=SDMX');
-      items[0].should.have.property('package', 'base');
-      items[0].should.have.property('class', 'Agency');
+      findResource('AgencyScheme', 'AGENCIES').should.have.property('items').that.is.an('array').with.lengthOf(5);
+      testProps(findResource('AgencyScheme', 'AGENCIES').items[0], {
+        id: 'SDMX',
+        name: 'SDMX',
+        urn: 'urn:sdmx:org.sdmx.infomodel.base.Agency=SDMX',
+        package: 'base',
+        class: 'Agency'
+      });
     });
 
   });
@@ -182,19 +252,21 @@
 
     it('contains attributes', function () {
       var dataflows = msg.resources.filter(function (r) { return r.class === 'Dataflow'; });
-      dataflows.length.should.equal(66);
-      firstResource = dataflows[0];
-      firstResource.should.have.property('id', 'AME');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=ECB:AME(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'AMECO');
-      firstResource.should.have.property('package', 'datastructure');
-      firstResource.should.have.property('class', 'Dataflow');
-      firstResource.should.have.property('structure').that.is.an('object');
-      firstResource.structure.should.have.property('href', 'urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=ECB:ECB_AME1(1.0)');
-      firstResource.structure.should.have.property('rel', 'structure');
-      firstResource.structure.should.have.property('type', 'datastructure');
+      dataflows.should.have.lengthOf(66);
+      testProps(dataflows[0], {
+        id: 'AME',
+        urn: 'urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=ECB:AME(1.0)',
+        agencyID: 'ECB',
+        version: '1.0',
+        name: 'AMECO',
+        package: 'datastructure',
+        class: 'Dataflow',
+        structure: {
+          href: 'urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=ECB:ECB_AME1(1.0)',
+          rel: 'structure',
+          type: 'datastructure'
+        }
+      });
     });
 
   });
@@ -205,23 +277,26 @@
 
     it('contains attributes', function () {
       var categorisations = msg.resources.filter(function (r) { return r.class === 'Categorisation'; });
-      categorisations.length.should.equal(70);
-      firstResource = categorisations[0];
-      firstResource.should.have.property('id', '00CC3B37-3732-D5BD-EB54-E2EC6BE90E1A');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Categorisation=ECB:00CC3B37-3732-D5BD-EB54-E2EC6BE90E1A(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'Categorise: DATAFLOWECB:YC(1.0)');
-      firstResource.should.have.property('package', 'categoryscheme');
-      firstResource.should.have.property('class', 'Categorisation');
-      firstResource.should.have.property('source').that.is.an('object');
-      firstResource.source.should.have.property('href', 'urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=ECB:YC(1.0)');
-      firstResource.source.should.have.property('rel', 'source');
-      firstResource.source.should.have.property('type', 'dataflow');
-      firstResource.should.have.property('target').that.is.an('object');
-      firstResource.target.should.have.property('href', 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Category=ECB:MOBILE_NAVI(1.0).03');
-      firstResource.target.should.have.property('rel', 'target');
-      firstResource.target.should.have.property('type', 'category');
+      categorisations.should.have.lengthOf(70);
+      testProps( categorisations[0], {
+        id: '00CC3B37-3732-D5BD-EB54-E2EC6BE90E1A',
+        urn: 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Categorisation=ECB:00CC3B37-3732-D5BD-EB54-E2EC6BE90E1A(1.0)',
+        agencyID: 'ECB',
+        version: '1.0',
+        name: 'Categorise: DATAFLOWECB:YC(1.0)',
+        package: 'categoryscheme',
+        class: 'Categorisation',
+        source: {
+          href: 'urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=ECB:YC(1.0)',
+          rel: 'source',
+          type: 'dataflow'
+        },
+        target: {
+          href: 'urn:sdmx:org.sdmx.infomodel.categoryscheme.Category=ECB:MOBILE_NAVI(1.0).03',
+          rel: 'target',
+          type: 'category'
+        }
+      });
     });
 
     it('maps dataflows to categories', function () {
@@ -242,41 +317,43 @@
     before(function (done) { getFixture('fixtures/HCL_COUNTRY_GROUPINGS.xml', done); });
 
     it('contains attributes', function () {
-      firstResource = msg.resources.filter(function (r) { return r.class === 'HierarchicalCodelist'; })[0];
-      firstResource.should.have.property('id', 'HCL_COUNTRY_GROUPINGS');
-      firstResource.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCodelist=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0)');
-      firstResource.should.have.property('agencyID', 'ECB.DISS');
-      firstResource.should.have.property('version', '1.0');
-      firstResource.should.have.property('name', 'List of country groupings');
-      firstResource.should.have.property('package', 'codelist');
-      firstResource.should.have.property('class', 'HierarchicalCodelist');
+      testProps( findResource('HierarchicalCodelist', 'HCL_COUNTRY_GROUPINGS'), {
+        id: 'HCL_COUNTRY_GROUPINGS',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCodelist=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0)',
+        agencyID: 'ECB.DISS',
+        version: '1.0',
+        name: 'List of country groupings',
+        package: 'codelist',
+        class: 'HierarchicalCodelist'
+      });
     });
 
     it('contains hierarchies', function () {
-      firstResource.should.have.property('items').that.is.an('array');
-      var items = firstResource.items;
-      items.length.should.equal(1);
-      var h = items[0];
-      h.should.have.property('id', 'EU_GROUPINGS_PROTOCOL');
-      h.should.have.property('name', 'EU countries sorted by protocol order');
-      h.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.Hierarchy=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL');
-      h.should.have.property('package', 'codelist');
-      h.should.have.property('class', 'Hierarchy');
-      h.should.have.property('leveled', false);
-      h.should.have.property('items').that.is.an('array');
-      h.items[0].should.be.an('object');
-      var hc1 = h.items[0];
-      hc1.should.have.property('id', '1');
-      hc1.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1');
-      hc1.should.have.property('code').that.is.an('object');
-      hc1.code.should.have.property('href', 'urn:sdmx:org.sdmx.infomodel.codelist.Code=ECB.DISS:CL_COUNTRY_GROUPINGS(1.0).EU');
-      hc1.code.should.have.property('rel', 'code');
-      hc1.code.should.have.property('type', 'code');
-      hc1.should.have.property('items').that.is.an('array');
-      hc1.items.should.have.length(28);
-      var hc2 = hc1.items[0];
-      hc2.should.have.property('id', '1');
-      hc2.should.have.property('urn', 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.1');
+      var hcl = findResource('HierarchicalCodelist', 'HCL_COUNTRY_GROUPINGS');
+      hcl.should.have.property('items').that.is.an('array').with.lengthOf(1);
+      testProps( hcl.items[0], {
+        id: 'EU_GROUPINGS_PROTOCOL',
+        name: 'EU countries sorted by protocol order',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.Hierarchy=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL',
+        package: 'codelist',
+        class: 'Hierarchy',
+        leveled: false
+      });
+      hcl.items[0].should.have.property('items').that.is.an('array').with.lengthOf(3);
+      testProps( hcl.items[0].items[0], {
+        id: '1',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1',
+        code: {
+          href: 'urn:sdmx:org.sdmx.infomodel.codelist.Code=ECB.DISS:CL_COUNTRY_GROUPINGS(1.0).EU',
+          rel: 'code',
+          type: 'code'
+        }
+      });
+      hcl.items[0].items[0].should.have.property('items').that.is.an('array').with.lengthOf(28)
+      testProps( hcl.items[0].items[0].items[0], {
+        id: '1',
+        urn: 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.1'
+      });
     });
 
   });

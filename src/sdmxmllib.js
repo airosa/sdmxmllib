@@ -364,6 +364,9 @@
 
       function mapItem (e) {
         var item = mapVersionableArtefact(e); // HierarchicalCode = versionable
+        item.agencyID = itemScheme.agencyID;
+        item.maintainableParentID = itemScheme.id;
+        item.maintainableParentVersion = itemScheme.version;
 
         if (item.urn === undefined) {
           item.urn = itemURN + hierarchy + '.' + item.id;
