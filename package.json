@@ -5,7 +5,7 @@
   "main": "src/sdmxmllib.js",
   "scripts": {
     "commit": "git-cz",
-    "check-coverage": "istanbul check-coverage --statements 80 --branches 60 --functions 80 --lines 80",
+    "check-coverage": "istanbul check-coverage --statements 85 --branches 65 --functions 85 --lines 90",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "test": "mocha --require ./src/util/node-helper.js --recursive",
     "test:single": "istanbul cover _mocha -- --require ./src/util/node-helper.js --recursive",
