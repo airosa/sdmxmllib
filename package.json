@@ -10,7 +10,7 @@
     "test": "mocha --require ./src/util/node-helper.js --recursive",
     "test:single": "istanbul cover _mocha -- --require ./src/util/node-helper.js --recursive",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "lint": "jshint src"
+    "lint": "jshint src test"
   },
   "repository": {
     "type": "git",

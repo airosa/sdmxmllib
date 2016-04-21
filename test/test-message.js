@@ -38,16 +38,16 @@
     it('api: returns all descendant elements with a matching local name and namespace', function () {
       var desc = sdmxmllib._getDescendants(dele, 'Code');
       desc.length.should.equal(10);
-      desc[0].id.should.equal('A');
+      desc[0].should.have.property('id', 'A');
       desc = sdmxmllib._getDescendants(dele, 'NotThere');
-      desc.length.should.equal(0);
+      desc.should.have.lengthOf(0);
     });
 
     it('api: returns all child elements with a matching local name and namespace', function () {
       var desc = sdmxmllib._getChildren(dele, 'Code');
       desc.length.should.equal(0);
       desc = sdmxmllib._getChildren(dele, 'Header', mes);
-      desc.length.should.equal(1);
+      desc.should.have.lengthOf(1);
     });
 
     it('api: returns first child element with a matching local name and namespace', function () {
@@ -75,6 +75,7 @@
 
     it('contains resources', function () {
       msg.should.have.property('resources').that.is.an('array').with.lengthOf(1);
+      msg.resources[0].should.have.property('class', 'Codelist');
       msg.should.have.property('references').that.is.an('object');
       Object.keys(msg.references).should.have.lengthOf(1);
       msg.references.should.contain.all.keys('urn:sdmx:org.sdmx.infomodel.codelist.Codelist=ECB:CL_FREQ(1.0)');
@@ -349,7 +350,7 @@
           type: 'code'
         }
       });
-      hcl.items[0].items[0].should.have.property('items').that.is.an('array').with.lengthOf(28)
+      hcl.items[0].items[0].should.have.property('items').that.is.an('array').with.lengthOf(28);
       testProps( hcl.items[0].items[0].items[0], {
         id: '1',
         urn: 'urn:sdmx:org.sdmx.infomodel.codelist.HierarchicalCode=ECB.DISS:HCL_COUNTRY_GROUPINGS(1.0).EU_GROUPINGS_PROTOCOL.1.1'
