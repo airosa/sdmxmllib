@@ -1,15 +1,13 @@
 (function () {
-  var msg, dele, firstResource;
+  var msg;
 
   var mes = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message';
   var str = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure';
 
   var getFixture = function (fixture, done) {
     var callback;
-    callback = function(testDocument) {
-      dele = testDocument.documentElement;
-      msg = sdmxmllib.mapSDMXMLResponse(testDocument);
-      firstResource = msg.resources[0];
+    callback = function(xmlSource) {
+      msg = sdmxmllib.mapSDMXMLResponse(xmlSource);
       done();
     };
     readXMLFixture(fixture, callback);
@@ -33,27 +31,36 @@
 
 
   describe('Internal API for document object', function() {
-    before(function (done) { getFixture('fixtures/CL_FREQ.xml', done); });
+    var dele;
+
+    before(function (done) {
+      readXMLFixture('fixtures/CL_FREQ.xml', function (xmlSource) {
+        var doc = (new DOMParser()).parseFromString(xmlSource, 'text/xml');
+        dele = doc.documentElement;
+        done();
+      });
+    });
 
     it('api: returns all descendant elements with a matching local name and namespace', function () {
-      var desc = sdmxmllib._getDescendants(dele, 'Code');
+
+      var desc = sdmxmllib._getDescendantsNS(dele, 'Code');
       desc.length.should.equal(10);
-      desc[0].should.have.property('id', 'A');
-      desc = sdmxmllib._getDescendants(dele, 'NotThere');
+      desc[0].getAttribute('id').should.equal('A');
+      desc = sdmxmllib._getDescendantsNS(dele, 'NotThere');
       desc.should.have.lengthOf(0);
     });
 
     it('api: returns all child elements with a matching local name and namespace', function () {
-      var desc = sdmxmllib._getChildren(dele, 'Code');
+      var desc = sdmxmllib._getChildrenNS(dele, 'Code');
       desc.length.should.equal(0);
-      desc = sdmxmllib._getChildren(dele, 'Header', mes);
+      desc = sdmxmllib._getChildrenNS(dele, 'Header', mes);
       desc.should.have.lengthOf(1);
     });
 
     it('api: returns first child element with a matching local name and namespace', function () {
-      var desc = sdmxmllib._getFirstChild(dele, 'Code');
+      var desc = sdmxmllib._getFirstChildNS(dele, 'Code');
       should.not.exist(desc);
-      desc = sdmxmllib._getFirstChild(dele, 'Header', mes);
+      desc = sdmxmllib._getFirstChildNS(dele, 'Header', mes);
       desc.localName.should.equal('Header');
     });
   });
@@ -164,7 +171,7 @@
       });
 
       it('contains concepts', function () {
-        firstResource.should.have.property('items').that.is.an('array').with.lengthOf(32);
+        msg.resources[0].should.have.property('items').that.is.an('array').with.lengthOf(32);
         testProps(msg.resources[0].items[0], {
           id: 'FREQ',
           name: 'Frequency',
@@ -205,7 +212,7 @@
       });
 
       it('contains categories', function () {
-        firstResource.should.have.property('items').that.is.an('array').with.lengthOf(11);
+        msg.resources[0].should.have.property('items').that.is.an('array').with.lengthOf(11);
         testProps(msg.resources[0].items[0], {
           id: '01',
           name: 'Monetary operations',

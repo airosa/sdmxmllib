@@ -7,7 +7,7 @@
       if (request.readyState !== 4) {
         return;
       }
-      callback(request.responseXML);
+      callback(request.responseText);
     };
     request.open('GET', filename);
     request.onreadystatechange = onReadyStateChange;

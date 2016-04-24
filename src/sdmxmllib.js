@@ -1,13 +1,20 @@
-//   sdmxmllib.js 0.5.0
+//   sdmxmllib.js
 //   http://github.com/airosa/sdmxmllib
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
 
 (function () {
+  var _DOMParser;
 
-  var root = typeof exports !== "undefined" && exports !== null ? exports : this;
+  if (typeof DOMParser === 'object') {
+    _DOMParser = DOMParser;
+  } else {
+    _DOMParser = require('xmldom').DOMParser;
+  }
 
-  var lib = { version: '0.5.0' };
+  var lib = {};
+
+  var root = typeof exports !== 'undefined' && exports !== null ? exports : this;
 
   var slice = Function.call.bind(Array.prototype.slice);
 
@@ -19,13 +26,14 @@
 
   // Main (only) interface method
 
-  lib.mapSDMXMLResponse = function (doc) {
+  lib.mapSDMXMLResponse = function (xmlSource) {
+    var doc = (new _DOMParser()).parseFromString(xmlSource, 'text/xml');
     var elem = doc.documentElement;
 
     var response = {
-      header: mapHeader(_getFirstChild(elem, 'Header', mes)),
-      resources: mapStructures(_getFirstChild(elem, 'Structures', mes)),
-      errors: mapErrorMessages(_getChildren(elem, 'ErrorMessage', mes))
+      header: mapHeader(_getFirstChildNS(elem, 'Header', mes)),
+      resources: mapStructures(_getFirstChildNS(elem, 'Structures', mes)),
+      errors: mapErrorMessages(_getChildrenNS(elem, 'ErrorMessage', mes))
     };
 
     response.references = mapResources(response.resources);
@@ -35,38 +43,51 @@
 
 //------------------------------------------------------------------------------
 
-  var _getDescendants = function (parent, tag, ns) {
+  var _getDescendantsNS = lib._getDescendantsNS = function (parent, tag, ns) {
     ns = ns === undefined ? str : ns;
     return slice(parent.getElementsByTagNameNS(ns, tag));
   };
 
-  lib._getDescendants = _getDescendants;
-
-  var _getChildren = function (parent, tag, ns) {
-    var children = _getDescendants(parent, tag, ns);
+  var _getChildrenNS = lib._getChildrenNS = function (parent, tag, ns) {
+    var children = _getDescendantsNS(parent, tag, ns);
     return children.filter(function (e) {
       return  e.parentNode === parent;
     });
   };
 
-  lib._getChildren = _getChildren;
-
-  var _getFirstChild = function (parent, tag, ns) {
-    var children = _getChildren(parent, tag, ns);
+  var _getFirstChildNS = lib._getFirstChildNS = function (parent, tag, ns) {
+    var children = _getChildrenNS(parent, tag, ns);
     return children[0];
   };
 
-  lib._getFirstChild = _getFirstChild;
+  var _getChildren = function (parent, tag) {
+    var children = slice(parent.getElementsByTagName(tag));
+    return children.filter(function (e) {
+      return e.parentNode === parent;
+    });
+  };
+
+  var _getFirstChild = function (parent, tag) {
+    var children = _getChildren(parent, tag);
+    return children[0];
+  };
+
+  var _getElementChildNodes = function (node) {
+    if ((node.childNodes === null) || (node.childNodes === undefined)) return [];
+    return slice(node.childNodes).filter(function (n) {
+      return n.nodeType === 1; // ELEMENT_NODE
+    });
+  };
 
 //------------------------------------------------------------------------------
 
   function mapStructures (structures) {
-    var resources = [];
+    var result = [];
 
-    if (structures === undefined) return resources;
+    if (structures === undefined) return result;
 
-    slice(structures.childNodes).forEach(function (c) {
-      slice(c.childNodes).forEach(function (s) {
+    _getElementChildNodes(structures).forEach(function (c) {
+      _getElementChildNodes(c).forEach(function (s) {
         if ((s.localName === undefined) || (s.localName === null)) return;
 
         var handler = {
@@ -82,12 +103,12 @@
         if (handler === undefined) {
           console.log('No mapping for ' + s.localName);
         } else {
-          resources.push(handler(s));
+          result.push(handler(s));
         }
       });
     });
 
-    return resources;
+    return result;
   }
 
 
@@ -96,28 +117,28 @@
   // Set of low level functions for getting element text and attributes
 
   function getElementText (parent, localName, ns) {
-    var el = _getFirstChild(parent, localName, ns);
+    var el = _getFirstChildNS(parent, localName, ns);
     if (el === undefined) return undefined;
     return el.textContent;
   }
 
-  function getValue (attr) {
-    if ((attr === undefined) || (attr === null)) return undefined;
-    return attr.value;
+  function getAttrValue (element, name) {
+    if (element.hasAttribute(name)) return element.getAttribute(name);
+    return undefined;
   }
 
   function toNumeric(value) {
-    if (value === undefined) return undefined;
+    if (value === undefined) return value;
     return +value;
   }
 
-  function toBoolean (val) {
-    if ((val === undefined) || (val === null)) return val;
-    return val === 'true';
+  function toBoolean (value) {
+    if ((value === undefined) || (value === null)) return value;
+    return value === 'true';
   }
 
   function mapElementsTextToArray (node, name, ns) {
-    var elements = _getChildren(node, name, ns);
+    var elements = _getChildrenNS(node, name, ns);
     if (elements.length === 0) return undefined;
 
     return elements.map(function (e) {
@@ -136,8 +157,8 @@
       test: toBoolean(getElementText(h, 'Test', mes)),
       id: getElementText(h, 'ID', mes),
       prepared: getElementText(h, 'Prepared', mes),
-      sender: mapParty(_getFirstChild(h, 'Sender', mes)),
-      receiver: mapParty(_getFirstChild(h, 'Receiver', mes))
+      sender: mapParty(_getFirstChildNS(h, 'Sender', mes)),
+      receiver: mapParty(_getFirstChildNS(h, 'Receiver', mes))
     };
   }
 
@@ -146,11 +167,11 @@
     if (e === undefined) return undefined;
 
     var party = {
-      id: getValue(e.attributes.id),
+      id: getAttrValue(e, 'id'),
       name: getElementText(e, 'Name', mes)
     };
 
-    var contacts = _getChildren(e, 'Contact', mes);
+    var contacts = _getChildrenNS(e, 'Contact', mes);
 
     if (0 < contacts.length) {
       party.contacts = contacts.map(function (c) {
@@ -174,7 +195,7 @@
     if (errors.length === 0) return undefined;
     return errors.map(function (e) {
       return {
-        code: toNumeric(getValue(e.code)),
+        code: toNumeric(getAttrValue(e, 'code')),
         message: getElementText(e, 'Text', mes)
       };
     });
@@ -186,11 +207,11 @@
 
   function mapIdentifiableArtefact (node) {
     var result = {
-      id: getValue(node.attributes.id),
-      urn: getValue(node.attributes.urn),
-      uri: getValue(node.attributes.uri),
-      package: getValue(node.attributes.package),
-      class: getValue(node.attributes.class),
+      id: getAttrValue(node, 'id'),
+      urn: getAttrValue(node, 'urn'),
+      uri: getAttrValue(node, 'uri'),
+      package: getAttrValue(node, 'package'),
+      class: getAttrValue(node, 'class'),
       annotations: mapAnnotations(node)
     };
 
@@ -214,20 +235,20 @@
 
   function mapVersionableArtefact (node) {
     var result = mapNameableArtefact(node);
-    result.validFrom = getValue(node.attributes.validFrom);
-    result.validTo = getValue(node.attributes.validTo);
+    result.validFrom = getAttrValue(node, 'validFrom');
+    result.validTo = getAttrValue(node, 'validTo');
     return result;
   }
 
 
   function mapMaintainableArtefact (node) {
     var result = mapVersionableArtefact(node);
-    result.agencyID = getValue(node.attributes.agencyID);
-    result.version = getValue(node.attributes.version);
-    result.isFinal = toBoolean(getValue(node.attributes.isFinal));
-    result.isExternalReference = toBoolean(getValue(node.attributes.isExternalReference));
-    result.structureURL = getValue(node.attributes.structureURL);
-    result.serviceURL = getValue(node.attributes.serviceURL);
+    result.agencyID = getAttrValue(node, 'agencyID');
+    result.version = getAttrValue(node, 'version');
+    result.isFinal = toBoolean(getAttrValue(node, 'isFinal'));
+    result.isExternalReference = toBoolean(getAttrValue(node, 'isExternalReference'));
+    result.structureURL = getAttrValue(node, 'structureURL');
+    result.serviceURL = getAttrValue(node, 'serviceURL');
 
     if (result.urn === undefined) {
       result.urn = [
@@ -244,12 +265,12 @@
 
 
   function mapAnnotations (node) {
-    var annotations = _getDescendants(node, 'Annotation', com);
+    var annotations = _getDescendantsNS(node, 'Annotation', com);
     if (annotations.length === 0) return undefined;
 
     return annotations.map(function (a) {
       return {
-        id: getValue(a.attributes.id),
+        id: getAttrValue(a, 'id'),
         title: getElementText(a, 'AnnotationTitle', com),
         type: getElementText(a, 'AnnotationType', com),
         url: getElementText(a, 'AnnotationURL', com),
@@ -264,20 +285,20 @@
 
   function mapLocalReference (node) {
     if ((node === undefined) || (node === null)) return undefined;
-    var ref = _getFirstChild(node, 'Ref');
+    var ref = _getFirstChildNS(node, 'Ref');
     if ((ref === undefined) || (ref === null)) return undefined;
-    return getValue(ref.attributes.id);
+    return getAttrValue(ref, 'id');
   }
 
 
   function mapBaseReference (e) {
     return [
       'urn:sdmx:org.sdmx.infomodel.',
-      getValue(e.attributes.package),
+      getAttrValue(e, 'package'),
       '.',
-      getValue(e.attributes.class),
+      getAttrValue(e, 'class'),
       '=',
-      getValue(e.attributes.agencyID),
+      getAttrValue(e, 'agencyID'),
       ':'
     ].join('');
   }
@@ -287,25 +308,25 @@
     var urn = getElementText(node, 'URN', null);
     if (urn !== undefined) return urn;
 
-    var ref = _getFirstChild(node, 'Ref', null);
+    var ref = _getFirstChild(node, 'Ref');
     if (ref === undefined) return undefined;
 
-    if (getValue(ref.attributes.maintainableParentID)) {
+    if (getAttrValue(ref, 'maintainableParentID') !== undefined) {
       return mapBaseReference(ref) +
         [
-          getValue(ref.attributes.maintainableParentID),
+          getAttrValue(ref, 'maintainableParentID'),
           '(',
-          getValue(ref.attributes.maintainableParentVersion),
+          getAttrValue(ref, 'maintainableParentVersion'),
           ').',
-          getValue(ref.attributes.id),
+          getAttrValue(ref, 'id'),
         ].join('');
     }
 
     return mapBaseReference(ref) +
       [
-        getValue(ref.attributes.id),
+        getAttrValue(ref, 'id'),
         '(',
-        getValue(ref.attributes.version),
+        getAttrValue(ref, 'version'),
         ')'
       ].join('');
   }
@@ -346,8 +367,8 @@
     }[e.localName];
 
     var itemScheme = mapMaintainableArtefact(e);
-    itemScheme.isPartial = toBoolean(e.attributes.isPartial);
-    itemScheme.leveled = toBoolean(e.attributes.leveled); // Hierarchy
+    itemScheme.isPartial = toBoolean(getAttrValue(e, 'isPartial'));
+    itemScheme.leveled = toBoolean(getAttrValue(e, 'leveled')); // Hierarchy
 
     var itemURN = [
       'urn:sdmx:org.sdmx.infomodel',
@@ -359,7 +380,7 @@
     ].join('');
 
     function mapItems (node, hierarchy) {
-      var items = _getChildren(node, itemName);
+      var items = _getChildrenNS(node, itemName);
       if (items.length === 0) return undefined;
 
       function mapItem (e) {
@@ -372,16 +393,16 @@
           item.urn = itemURN + hierarchy + '.' + item.id;
         }
 
-        item.parent = mapLocalReference(_getFirstChild(e, 'parent'));
+        item.parent = mapLocalReference(_getFirstChildNS(e, 'parent'));
         item.items = mapItems(e, hierarchy + '.' + item.id);
 
         if (e.localName === 'Concept') {
-          item.isoConceptReference = mapISOConceptReference(_getFirstChild(e, 'ISOConceptReference'));
-          item.coreRepresentation = mapRepresentation(_getFirstChild(e, 'CoreRepresentation'));
+          item.isoConceptReference = mapISOConceptReference(_getFirstChildNS(e, 'ISOConceptReference'));
+          item.coreRepresentation = mapRepresentation(_getFirstChildNS(e, 'CoreRepresentation'));
         }
 
         if (e.localName === 'HierarchicalCode') {
-          item.code = mapReference(_getFirstChild(e, 'Code'), 'code', 'code');
+          item.code = mapReference(_getFirstChildNS(e, 'Code'), 'code', 'code');
         }
 
         return item;
@@ -401,12 +422,12 @@
     var result = mapMaintainableArtefact(e);
 
     if (e.localName === 'Dataflow') {
-      result.structure = mapReference(_getFirstChild(e, 'Structure'), 'structure', 'datastructure');
+      result.structure = mapReference(_getFirstChildNS(e, 'Structure'), 'structure', 'datastructure');
     }
 
     if (e.localName === 'Categorisation') {
-      result.source = mapReference(_getFirstChild(e, 'Source'), 'source', 'dataflow');
-      result.target = mapReference(_getFirstChild(e, 'Target'), 'target', 'category');
+      result.source = mapReference(_getFirstChildNS(e, 'Source'), 'source', 'dataflow');
+      result.target = mapReference(_getFirstChildNS(e, 'Target'), 'target', 'category');
     }
 
     return result;
@@ -420,21 +441,21 @@
     if ((e === undefined) || (e === null)) return undefined;
 
     return {
-      textType: getValue(e.attributes.textType),
-      isSequence: toBoolean(getValue(e.attributes.isSequence)),
-      interval: toNumeric(getValue(e.attributes.interval)),
-      startValue: toNumeric(getValue(e.attributes.startValue)),
-      endValue: toNumeric(getValue(e.attributes.endValue)),
-      timeInterval: getValue(getValue(e.attributes.timeInterval)),
-      startTime: toNumeric(getValue(e.attributes.startTime)),
-      endTime: toNumeric(getValue(e.attributes.endTime)),
-      minLength: toNumeric(getValue(e.attributes.minLength)),
-      maxLength: toNumeric(getValue(e.attributes.maxLength)),
-      minValue: toNumeric(getValue(e.attributes.minValue)),
-      maxValue: toNumeric(getValue(e.attributes.maxValue)),
-      decimals: toNumeric(getValue(e.attributes.decimals)),
-      pattern: getValue(e.attributes.pattern),
-      isMultiLingual: toBoolean(getValue(e.attributes.isMultiLingual))
+      textType: getAttrValue(e, 'textType'),
+      isSequence: toBoolean(getAttrValue(e, 'isSequence')),
+      interval: toNumeric(getAttrValue(e, 'interval')),
+      startValue: toNumeric(getAttrValue(e, 'startValue')),
+      endValue: toNumeric(getAttrValue(e, 'endValue')),
+      timeInterval: getAttrValue(getAttrValue(e, 'timeInterval')),
+      startTime: toNumeric(getAttrValue(e, 'startTime')),
+      endTime: toNumeric(getAttrValue(e, 'endTime')),
+      minLength: toNumeric(getAttrValue(e, 'minLength')),
+      maxLength: toNumeric(getAttrValue(e, 'maxLength')),
+      minValue: toNumeric(getAttrValue(e, 'minValue')),
+      maxValue: toNumeric(getAttrValue(e, 'maxValue')),
+      decimals: toNumeric(getAttrValue(e, 'decimals')),
+      pattern: getAttrValue(e, 'pattern'),
+      isMultiLingual: toBoolean(getAttrValue(e, 'isMultiLingual'))
     };
   }
 
@@ -443,9 +464,9 @@
     if ((e === undefined) || (e === null)) return undefined;
 
     return {
-      textFormat: mapTextFormat(_getFirstChild(e, 'TextFormat')),
-      enumeration: mapReference(_getFirstChild(e, 'Enumeration'), 'representation', 'codelist'),
-      enumerationFormat: mapTextFormat(_getFirstChild(e, 'EnumerationFormat'))
+      textFormat: mapTextFormat(_getFirstChildNS(e, 'TextFormat')),
+      enumeration: mapReference(_getFirstChildNS(e, 'Enumeration'), 'representation', 'codelist'),
+      enumerationFormat: mapTextFormat(_getFirstChildNS(e, 'EnumerationFormat'))
     };
   }
 
@@ -455,7 +476,7 @@
     // TODO add levels
     var hcl = mapMaintainableArtefact(e);
 
-    var hierarchies = _getChildren(e, 'Hierarchy');
+    var hierarchies = _getChildrenNS(e, 'Hierarchy');
     if (hierarchies.length === 0) return hcl;
 
     hcl.items = hierarchies.map(function (h) {

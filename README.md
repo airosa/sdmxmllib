@@ -24,23 +24,18 @@ for a live demo.
 
 ## Usage ##
 
-Just include the library on a web page:
-
-```
-<script src="sdmxmllib.js"></script>
-<script>console.log('sdmxmllib version: ' + sdmxmllib.version);</script>
-```
+Either include the library on a web page or require in Node.js.
 
 ## Mapping ##
 
 ### mapSDMXMLResponse
 
-Maps SDMX-ML Structure message to Javascript objects. Accepts a document object
-as input.
+Maps SDMX-ML Structure message into Javascript objects. Accepts a SDMX-ML 2.1
+Structure Message as input.
 
 ```
 // req is a XMLHttpRequest object
-var msg = sdmxmllib.mapSDMXMLResponse(req.responseXML);
+var msg = sdmxmllib.mapSDMXMLResponse(req.responseText);
 
 console.log(msg.header.id);                 // "IDREF99224"
 console.log(msg.resources.length);          // 10

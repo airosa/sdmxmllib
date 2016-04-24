@@ -46,5 +46,7 @@
       "pre-commit": "npm run test:single && npm run check-coverage && npm run lint"
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "xmldom": "0.1.22"
+  }
 }

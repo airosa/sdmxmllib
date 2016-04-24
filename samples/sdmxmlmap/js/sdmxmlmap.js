@@ -19,7 +19,7 @@
         // Show the raw response text on page
         xmlOutput.textContent = req.responseText;
         // convert XML to javascript objects
-        var json = sdmxmllib.mapSDMXMLResponse(req.responseXML, url);
+        var json = sdmxmllib.mapSDMXMLResponse(req.responseText);
         // Convert to json and show on page
         jsonOutput.textContent = JSON.stringify(json, null, 2);
     };
