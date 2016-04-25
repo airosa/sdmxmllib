@@ -18,6 +18,7 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
+lib
 npm-debug.log
 coverage
 *.swp
