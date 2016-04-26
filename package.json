@@ -2,7 +2,7 @@
   "name": "sdmxmllib",
   "description": "Javascript library for converting SDMX-ML structure messages",
   "version": "0.0.0-semantically-released",
-  "main": "lib/sdmxmllib.js",
+  "main": "./lib/sdmxmllib.js",
   "scripts": {
     "clean": "rm -rf lib/",
     "prebuild": "npm run clean",

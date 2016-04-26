@@ -22,6 +22,8 @@ const common = {
   output: {
     path: './lib',
     filename: '[name].js',
+    library: "sdmxmllib",
+    libraryTarget: "umd"
   },
 
   resolve: {
