@@ -1,4 +1,3 @@
-  //var sdmxmllib  = require('../src/sdmxmllib');
   var msg;
 
   var mes = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message';
