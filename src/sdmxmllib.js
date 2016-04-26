@@ -3,21 +3,21 @@
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
 
-  var _DOMParser;
+var _DOMParser;
 
-  if (typeof DOMParser === 'object') {
-    _DOMParser = DOMParser;
-  } else {
-    _DOMParser = require('xmldom').DOMParser;
-  }
+if (typeof DOMParser === 'object') {
+  _DOMParser = DOMParser;
+} else {
+  _DOMParser = require('xmldom').DOMParser;
+}
 
-  var lib = {};
+var lib = {};
 
-  var slice = Function.call.bind(Array.prototype.slice);
+var slice = Function.call.bind(Array.prototype.slice);
 
-  var mes = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message';
-  var str = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure';
-  var com = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common';
+var mes = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message';
+var str = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure';
+var com = 'http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common';
 
 //==============================================================================
 
@@ -40,73 +40,73 @@
 
 //------------------------------------------------------------------------------
 
-  var _getDescendantsNS = lib._getDescendantsNS = function (parent, tag, ns) {
-    ns = ns === undefined ? str : ns;
-    return slice(parent.getElementsByTagNameNS(ns, tag));
-  };
+var _getDescendantsNS = lib._getDescendantsNS = function (parent, tag, ns) {
+  ns = ns === undefined ? str : ns;
+  return slice(parent.getElementsByTagNameNS(ns, tag));
+};
 
-  var _getChildrenNS = lib._getChildrenNS = function (parent, tag, ns) {
-    var children = _getDescendantsNS(parent, tag, ns);
-    return children.filter(function (e) {
-      return  e.parentNode === parent;
-    });
-  };
+var _getChildrenNS = lib._getChildrenNS = function (parent, tag, ns) {
+  var children = _getDescendantsNS(parent, tag, ns);
+  return children.filter(function (e) {
+    return  e.parentNode === parent;
+  });
+};
 
-  var _getFirstChildNS = lib._getFirstChildNS = function (parent, tag, ns) {
-    var children = _getChildrenNS(parent, tag, ns);
-    return children[0];
-  };
+var _getFirstChildNS = lib._getFirstChildNS = function (parent, tag, ns) {
+  var children = _getChildrenNS(parent, tag, ns);
+  return children[0];
+};
 
-  var _getChildren = function (parent, tag) {
-    var children = slice(parent.getElementsByTagName(tag));
-    return children.filter(function (e) {
-      return e.parentNode === parent;
-    });
-  };
+var _getChildren = function (parent, tag) {
+  var children = slice(parent.getElementsByTagName(tag));
+  return children.filter(function (e) {
+    return e.parentNode === parent;
+  });
+};
 
-  var _getFirstChild = function (parent, tag) {
-    var children = _getChildren(parent, tag);
-    return children[0];
-  };
+var _getFirstChild = function (parent, tag) {
+  var children = _getChildren(parent, tag);
+  return children[0];
+};
 
-  var _getElementChildNodes = function (node) {
-    if ((node.childNodes === null) || (node.childNodes === undefined)) return [];
-    return slice(node.childNodes).filter(function (n) {
+var _getElementChildNodes = function (node) {
+  if ((node.childNodes === null) || (node.childNodes === undefined)) return [];
+  return slice(node.childNodes).filter(function (n) {
       return n.nodeType === 1; // ELEMENT_NODE
     });
-  };
+};
 
 //------------------------------------------------------------------------------
 
-  function mapStructures (structures) {
-    var result = [];
+function mapStructures (structures) {
+  var result = [];
 
-    if (structures === undefined) return result;
+  if (structures === undefined) return result;
 
-    _getElementChildNodes(structures).forEach(function (c) {
-      _getElementChildNodes(c).forEach(function (s) {
-        if ((s.localName === undefined) || (s.localName === null)) return;
+  _getElementChildNodes(structures).forEach(function (c) {
+    _getElementChildNodes(c).forEach(function (s) {
+      if ((s.localName === undefined) || (s.localName === null)) return;
 
-        var handler = {
-          'Categorisation': mapSimpleMaintainable,
-          'CategoryScheme': mapItemScheme,
-          'Dataflow': mapSimpleMaintainable,
-          'AgencyScheme': mapItemScheme,
-          'Codelist': mapItemScheme,
-          'ConceptScheme': mapItemScheme,
-          'HierarchicalCodelist': mapHierarchicalCodelist,
-        }[s.localName];
+      var handler = {
+        'Categorisation': mapSimpleMaintainable,
+        'CategoryScheme': mapItemScheme,
+        'Dataflow': mapSimpleMaintainable,
+        'AgencyScheme': mapItemScheme,
+        'Codelist': mapItemScheme,
+        'ConceptScheme': mapItemScheme,
+        'HierarchicalCodelist': mapHierarchicalCodelist,
+      }[s.localName];
 
-        if (handler === undefined) {
-          console.log('No mapping for ' + s.localName);
-        } else {
-          result.push(handler(s));
-        }
-      });
+      if (handler === undefined) {
+        console.log('No mapping for ' + s.localName);
+      } else {
+        result.push(handler(s));
+      }
     });
+  });
 
-    return result;
-  }
+  return result;
+}
 
 
 //------------------------------------------------------------------------------
@@ -249,11 +249,11 @@
 
     if (result.urn === undefined) {
       result.urn = [
-        'urn:sdmx:org.sdmx.infomodel.',
-        result.package, '.',
-        result.class, '=',
-        result.agencyID, ':',
-        result.id, '(', result.version, ')'
+      'urn:sdmx:org.sdmx.infomodel.',
+      result.package, '.',
+      result.class, '=',
+      result.agencyID, ':',
+      result.id, '(', result.version, ')'
       ].join('');
     }
 
@@ -290,13 +290,13 @@
 
   function mapBaseReference (e) {
     return [
-      'urn:sdmx:org.sdmx.infomodel.',
-      getAttrValue(e, 'package'),
-      '.',
-      getAttrValue(e, 'class'),
-      '=',
-      getAttrValue(e, 'agencyID'),
-      ':'
+    'urn:sdmx:org.sdmx.infomodel.',
+    getAttrValue(e, 'package'),
+    '.',
+    getAttrValue(e, 'class'),
+    '=',
+    getAttrValue(e, 'agencyID'),
+    ':'
     ].join('');
   }
 
@@ -310,22 +310,22 @@
 
     if (getAttrValue(ref, 'maintainableParentID') !== undefined) {
       return mapBaseReference(ref) +
-        [
-          getAttrValue(ref, 'maintainableParentID'),
-          '(',
-          getAttrValue(ref, 'maintainableParentVersion'),
-          ').',
-          getAttrValue(ref, 'id'),
-        ].join('');
+      [
+      getAttrValue(ref, 'maintainableParentID'),
+      '(',
+      getAttrValue(ref, 'maintainableParentVersion'),
+      ').',
+      getAttrValue(ref, 'id'),
+      ].join('');
     }
 
     return mapBaseReference(ref) +
-      [
-        getAttrValue(ref, 'id'),
-        '(',
-        getAttrValue(ref, 'version'),
-        ')'
-      ].join('');
+    [
+    getAttrValue(ref, 'id'),
+    '(',
+    getAttrValue(ref, 'version'),
+    ')'
+    ].join('');
   }
 
 
@@ -354,26 +354,26 @@
 
     // Functions for mapping item scheme like artefacts
 
-  function mapItemScheme (e) {
-    var itemName = {
-      'CategoryScheme': 'Category',
-      'Hierarchy': 'HierarchicalCode',
-      'Codelist': 'Code',
-      'ConceptScheme': 'Concept',
-      'AgencyScheme': 'Agency'
-    }[e.localName];
+    function mapItemScheme (e) {
+      var itemName = {
+        'CategoryScheme': 'Category',
+        'Hierarchy': 'HierarchicalCode',
+        'Codelist': 'Code',
+        'ConceptScheme': 'Concept',
+        'AgencyScheme': 'Agency'
+      }[e.localName];
 
-    var itemScheme = mapMaintainableArtefact(e);
-    itemScheme.isPartial = toBoolean(getAttrValue(e, 'isPartial'));
+      var itemScheme = mapMaintainableArtefact(e);
+      itemScheme.isPartial = toBoolean(getAttrValue(e, 'isPartial'));
     itemScheme.leveled = toBoolean(getAttrValue(e, 'leveled')); // Hierarchy
 
     var itemURN = [
-      'urn:sdmx:org.sdmx.infomodel',
-      '.', itemScheme.package,
-      '', itemName,
-      '=', itemScheme.agencyID,
-      ':', itemScheme.id,
-      '(', itemScheme.version, ')'
+    'urn:sdmx:org.sdmx.infomodel',
+    '.', itemScheme.package,
+    '', itemName,
+    '=', itemScheme.agencyID,
+    ':', itemScheme.id,
+    '(', itemScheme.version, ')'
     ].join('');
 
     function mapItems (node, hierarchy) {
@@ -415,61 +415,61 @@
 
 //------------------------------------------------------------------------------
 
-  function mapSimpleMaintainable(e) {
-    var result = mapMaintainableArtefact(e);
+function mapSimpleMaintainable(e) {
+  var result = mapMaintainableArtefact(e);
 
-    if (e.localName === 'Dataflow') {
-      result.structure = mapReference(_getFirstChildNS(e, 'Structure'), 'structure', 'datastructure');
-    }
-
-    if (e.localName === 'Categorisation') {
-      result.source = mapReference(_getFirstChildNS(e, 'Source'), 'source', 'dataflow');
-      result.target = mapReference(_getFirstChildNS(e, 'Target'), 'target', 'category');
-    }
-
-    return result;
+  if (e.localName === 'Dataflow') {
+    result.structure = mapReference(_getFirstChildNS(e, 'Structure'), 'structure', 'datastructure');
   }
+
+  if (e.localName === 'Categorisation') {
+    result.source = mapReference(_getFirstChildNS(e, 'Source'), 'source', 'dataflow');
+    result.target = mapReference(_getFirstChildNS(e, 'Target'), 'target', 'category');
+  }
+
+  return result;
+}
 
 //------------------------------------------------------------------------------
 
     // Functions for mapping representations
 
-  function mapTextFormat (e) {
-    if ((e === undefined) || (e === null)) return undefined;
+    function mapTextFormat (e) {
+      if ((e === undefined) || (e === null)) return undefined;
 
-    return {
-      textType: getAttrValue(e, 'textType'),
-      isSequence: toBoolean(getAttrValue(e, 'isSequence')),
-      interval: toNumeric(getAttrValue(e, 'interval')),
-      startValue: toNumeric(getAttrValue(e, 'startValue')),
-      endValue: toNumeric(getAttrValue(e, 'endValue')),
-      timeInterval: getAttrValue(getAttrValue(e, 'timeInterval')),
-      startTime: toNumeric(getAttrValue(e, 'startTime')),
-      endTime: toNumeric(getAttrValue(e, 'endTime')),
-      minLength: toNumeric(getAttrValue(e, 'minLength')),
-      maxLength: toNumeric(getAttrValue(e, 'maxLength')),
-      minValue: toNumeric(getAttrValue(e, 'minValue')),
-      maxValue: toNumeric(getAttrValue(e, 'maxValue')),
-      decimals: toNumeric(getAttrValue(e, 'decimals')),
-      pattern: getAttrValue(e, 'pattern'),
-      isMultiLingual: toBoolean(getAttrValue(e, 'isMultiLingual'))
-    };
-  }
+      return {
+        textType: getAttrValue(e, 'textType'),
+        isSequence: toBoolean(getAttrValue(e, 'isSequence')),
+        interval: toNumeric(getAttrValue(e, 'interval')),
+        startValue: toNumeric(getAttrValue(e, 'startValue')),
+        endValue: toNumeric(getAttrValue(e, 'endValue')),
+        timeInterval: getAttrValue(getAttrValue(e, 'timeInterval')),
+        startTime: toNumeric(getAttrValue(e, 'startTime')),
+        endTime: toNumeric(getAttrValue(e, 'endTime')),
+        minLength: toNumeric(getAttrValue(e, 'minLength')),
+        maxLength: toNumeric(getAttrValue(e, 'maxLength')),
+        minValue: toNumeric(getAttrValue(e, 'minValue')),
+        maxValue: toNumeric(getAttrValue(e, 'maxValue')),
+        decimals: toNumeric(getAttrValue(e, 'decimals')),
+        pattern: getAttrValue(e, 'pattern'),
+        isMultiLingual: toBoolean(getAttrValue(e, 'isMultiLingual'))
+      };
+    }
 
 
-  function mapRepresentation (e) {
-    if ((e === undefined) || (e === null)) return undefined;
+    function mapRepresentation (e) {
+      if ((e === undefined) || (e === null)) return undefined;
 
-    return {
-      textFormat: mapTextFormat(_getFirstChildNS(e, 'TextFormat')),
-      enumeration: mapReference(_getFirstChildNS(e, 'Enumeration'), 'representation', 'codelist'),
-      enumerationFormat: mapTextFormat(_getFirstChildNS(e, 'EnumerationFormat'))
-    };
-  }
+      return {
+        textFormat: mapTextFormat(_getFirstChildNS(e, 'TextFormat')),
+        enumeration: mapReference(_getFirstChildNS(e, 'Enumeration'), 'representation', 'codelist'),
+        enumerationFormat: mapTextFormat(_getFirstChildNS(e, 'EnumerationFormat'))
+      };
+    }
 
 //------------------------------------------------------------------------------
 
-  function mapHierarchicalCodelist (e) {
+function mapHierarchicalCodelist (e) {
     // TODO add levels
     var hcl = mapMaintainableArtefact(e);
 
@@ -477,7 +477,7 @@
     if (hierarchies.length === 0) return hcl;
 
     hcl.items = hierarchies.map(function (h) {
-        return mapItemScheme(h);
+      return mapItemScheme(h);
     });
 
     return hcl;
@@ -491,7 +491,7 @@
     var result = {};
 
     resources.forEach(function (r) {
-        result[r.urn] = r;
+      result[r.urn] = r;
     });
 
     var categorisations = resources.filter(function (r) { return r.class === 'Categorisation'; });
@@ -522,6 +522,5 @@
   }
 
 //==============================================================================
-
 
 module.exports = lib;
