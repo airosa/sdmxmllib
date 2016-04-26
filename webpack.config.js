@@ -17,7 +17,7 @@ const TARGET = process.env.npm_lifecycle_event;
 const common = {
   cache: true,
   entry: {
-    sdmxmllib: './src/index.js'
+    sdmxmllib: './src/sdmxmllib.js'
   },
   output: {
     path: './lib',
