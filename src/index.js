@@ -3,7 +3,6 @@
 //   (c) 2014 Sami Airo
 //   sdmxmllib.js may be freely distributed under the MIT license
 
-(function () {
   var _DOMParser;
 
   if (typeof DOMParser === 'object') {
@@ -13,8 +12,6 @@
   }
 
   var lib = {};
-
-  var root = typeof exports !== 'undefined' && exports !== null ? exports : this;
 
   var slice = Function.call.bind(Array.prototype.slice);
 
@@ -526,15 +523,5 @@
 
 //==============================================================================
 
-  if (typeof define === 'function' && define.amd) {
-    // Require.js - no dependencies
-    define([], function () {
-      // no setup
-      return lib;
-    });
-  } else {
-    // Add to global object
-    root.sdmxmllib = lib;
-  }
 
-}).call(this);
+module.exports = lib;

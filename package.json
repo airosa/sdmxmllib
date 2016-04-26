@@ -2,8 +2,11 @@
   "name": "sdmxmllib",
   "description": "Javascript library for converting SDMX-ML structure messages",
   "version": "0.0.0-semantically-released",
-  "main": "src/sdmxmllib.js",
+  "main": "lib/sdmxmllib.js",
   "scripts": {
+    "clean": "rm -rf lib/",
+    "prebuild": "npm run clean",
+    "build": "webpack --display-chunks --display-reasons --progress --color -p",
     "commit": "git-cz",
     "check-coverage": "istanbul check-coverage --statements 85 --branches 65 --functions 85 --lines 90",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
@@ -27,16 +30,19 @@
   },
   "homepage": "https://github.com/airosa/sdmxmllib#readme",
   "devDependencies": {
+    "chai": "3.5.0",
+    "codecov.io": "0.1.6",
     "commitizen": "2.5.0",
     "cz-conventional-changelog": "1.1.5",
-    "istanbul": "0.4.2",
-    "codecov.io": "0.1.6",
-    "mocha": "2.4.5",
-    "chai": "3.5.0",
     "ghooks": "1.0.3",
-    "semantic-release": "^4.3.5",
+    "istanbul": "0.4.2",
     "jsdom": "8.4.0",
-    "jshint": "2.9.1"
+    "jshint": "2.9.1",
+    "mocha": "2.4.5",
+    "raw-loader": "0.5.1",
+    "semantic-release": "^4.3.5",
+    "webpack": "1.12.14",
+    "webpack-merge": "0.12.0"
   },
   "config": {
     "commitizen": {
