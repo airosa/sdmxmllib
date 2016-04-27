@@ -1,4 +1,4 @@
-global.sdmxmllib = require('../../src/sdmxmllib').sdmxmllib;
+global.sdmxmllib = require('../../src/sdmxmllib');
 var fs = require('fs');
 var chai = require('chai');
 global.should = chai.should();
